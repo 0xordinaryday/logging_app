@@ -5,6 +5,10 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import OneLineListItem
 from kivy.clock import Clock
 from kivymd.uix.button import MDFloatingActionButton
+from db import Database
+
+# Initialize db instance
+db = Database()
 
 Builder.load_string('''
 <HomeScreen>:
@@ -62,6 +66,11 @@ class HomeScreen(MDScreen):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is
         complete."""
-        for i in range(20):
-            self.ids.project_list.add_widget(OneLineListItem(text=f'Project ID {i}'))
+        try:
+            project_details = db.get_project_information()
+            for project in project_details:
+                self.ids.project_list.add_widget(OneLineListItem(text=project[0] + ' ' + project[1]))
+        except Exception as e:
+            print(e)
+            pass
 

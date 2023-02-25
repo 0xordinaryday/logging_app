@@ -15,6 +15,11 @@ from homescreen import HomeScreen
 from firstscreen import MyScreen1
 from secondscreen import MyScreen2
 
+from db import Database
+# Initialize db instance
+db = Database()
+
+
 
 class MainApp(MDApp):
     def build(self):
