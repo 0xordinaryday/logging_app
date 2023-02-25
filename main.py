@@ -10,6 +10,7 @@ from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.list import OneLineListItem
 from kivy.properties import ObjectProperty
+from kivy.properties import StringProperty
 
 from homescreen import HomeScreen
 from firstscreen import MyScreen1
@@ -17,12 +18,14 @@ from secondscreen import MyScreen2
 from project_details import ProjectDetailsScreen
 
 from db import Database
+
 # Initialize db instance
 db = Database()
 
 
-
 class MainApp(MDApp):
+    data = StringProperty('some value')
+
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Orange"

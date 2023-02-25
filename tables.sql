@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS "project_information" (
 	"job_id"	TEXT,
 	"project_name"	TEXT,
 	"project_line_2"	TEXT,
-	"location"	TEXT,
-    PRIMARY KEY("hole_id")
+	"location"	TEXT
+    -- PRIMARY KEY("hole_id")
 );
 CREATE TABLE IF NOT EXISTS "strata" (
 	"hole_id"	TEXT,
@@ -98,5 +98,6 @@ CREATE TABLE IF NOT EXISTS "eoh" (
 
 -- INSERT INTO "collars" ("hole_id","easting","northing","elevation","starting_depth","ending_depth","inclination","azimuth","logged_by","date","drill_model","barrel_type","fluid","diameter") VALUES ('BH1','574747','5285155','50','0','15','-90','0','DG','24 Jan 2023','Hanjin D+B D8','Auger','','150mm');
 -- INSERT INTO "project_information" ("hole_id","client","job_id","project_name","project_line_2","location") VALUES ('BH1','Glamorgan Spring Bay Council','TG22202/1','Geotechnical Investigation',NULL,'Rheban Road, Spring Beach');
+-- INSERT INTO "project_information" ("hole_id","client","job_id","project_name","project_line_2","location") VALUES ('BH2','West Tamar Council','TG99202/1','Some kind of job',NULL,'123 Fake Street, Gravelly Beach');
 
 COMMIT;

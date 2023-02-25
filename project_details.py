@@ -1,3 +1,4 @@
+from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.button import MDFillRoundFlatButton
@@ -112,7 +113,8 @@ class ProjectDetailsScreen(MDScreen):
         """Event fired when the screen is displayed: the entering animation is
         complete."""
         try:
-            specific_project = db.get_specific_project_information("TG22202/1")
+            # print(App.get_running_app().data) # a variable to hold the project number
+            specific_project = db.get_specific_project_information(App.get_running_app().data)
             self.ids.project_number_id.text = specific_project[0]
             self.ids.client_id.text = specific_project[1]
             self.ids.location_id.text = specific_project[3]

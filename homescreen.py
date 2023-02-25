@@ -1,10 +1,8 @@
+from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.screenmanager import Screen
-from kivymd.uix.button import MDFillRoundFlatButton
-from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import OneLineListItem
-from kivy.clock import Clock
-from kivymd.uix.button import MDFloatingActionButton
+from kivymd.uix.screen import MDScreen
+
 from db import Database
 
 # Initialize db instance
@@ -69,9 +67,16 @@ class HomeScreen(MDScreen):
         complete."""
         try:
             project_details = db.get_project_information()
+            self.ids.project_list.clear_widgets()  # if there are any already
             for project in project_details:
-                self.ids.project_list.add_widget(OneLineListItem(text=project[0] + ' ' + project[1], font_style='Caption'))
+                self.ids.project_list.add_widget(
+                    OneLineListItem(text=project[0] + ' ' + project[1], font_style='Caption',
+                                    on_release=self.do_something))
         except Exception as e:
             print(e)
             pass
 
+    def do_something(self, onelinelistitem):
+        # print(onelinelistitem.text)
+        App.get_running_app().root.current = "project_details"
+        App.get_running_app().data = onelinelistitem.text.split(' ')[0]
