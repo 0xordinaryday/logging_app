@@ -8,6 +8,8 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
+from kivymd.uix.list import OneLineListItem
+from kivy.properties import ObjectProperty
 
 from homescreen import HomeScreen
 from firstscreen import MyScreen1
