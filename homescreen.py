@@ -4,6 +4,7 @@ from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import OneLineListItem
 from kivy.clock import Clock
+from kivymd.uix.button import MDFloatingActionButton
 
 Builder.load_string('''
 <HomeScreen>:
@@ -11,17 +12,16 @@ Builder.load_string('''
     name: "homescreen"
     MDBoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Projects'
-            size_hint: 1,0.2
-        MDScrollView:
-            MDList:
-                id: project_list
+        
+        MDTopAppBar:
+            title: 'Projects'
+            # size_hint: 1,0.1
+            
         MDBoxLayout:
             spacing: "10dp"
             # adaptive_width: True
             size_hint: 0.9,0.3
-            pos_hint: {"center_x": .5, "center_y": .5}
+            pos_hint: {"center_x": .5}
             MDFillRoundFlatButton:
                 text: "Exit"
                 # # font_size: 12
@@ -42,6 +42,18 @@ Builder.load_string('''
                 on_release: app.root.current = "firstscreen"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
+            
+        MDFloatLayout:
+            # size_hint: 1,0.6
+            # pos_hint: {"top": 0.1}
+            MDScrollView:
+                MDList:
+                    id: project_list
+            MDFloatingActionButton:
+                icon: "plus"
+                pos_hint: {"center_x": .85, "center_y": .15}
+                
+
 ''')
 
 
