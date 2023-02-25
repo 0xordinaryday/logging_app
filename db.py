@@ -14,7 +14,7 @@ class Database:
         self.cursor.executescript(sql_script)
         self.con.commit()
 
-    #def create_task(self, task, due_date=None):
+    # def create_task(self, task, due_date=None):
     #    """Create a task"""
     #    self.cursor.execute("INSERT INTO tasks(task, due_date, completed) VALUES(?, ?, ?)", (task, due_date, 0))
     #    self.con.commit()
@@ -26,17 +26,27 @@ class Database:
     #
     def get_project_information(self):
         """Get tasks"""
-        project_details = self.cursor.execute("SELECT job_id, client, project_name FROM project_information").fetchall()
+        project_details = self.cursor.execute(
+            "SELECT job_id, client, project_name, location FROM project_information").fetchall()
         # completed_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 1").fetchall()
 
         return project_details
 
-    #def mark_task_as_complete(self, taskid):
+    def get_specific_project_information(self, job_id_to_fetch):
+        """Get tasks"""
+        specific_project = self.cursor.execute(
+            """SELECT job_id, client, project_name, location FROM project_information WHERE job_id = ?;""", (job_id_to_fetch,))
+        # completed_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 1").fetchall()
+        # print(self.cursor.fetchall()[0])
+
+        return self.cursor.fetchall()[0]
+
+    # def mark_task_as_complete(self, taskid):
     #    """Marking tasks as complete"""
     #    self.cursor.execute("UPDATE tasks SET completed=1 WHERE id=?", (taskid,))
     #    self.con.commit()
     #
-    #def mark_task_as_incomplete(self, taskid):
+    # def mark_task_as_incomplete(self, taskid):
     #    """Mark task as uncomplete"""
     #    self.cursor.execute("UPDATE tasks SET completed=0 WHERE id=?", (taskid,))
     #    self.con.commit()
@@ -45,7 +55,7 @@ class Database:
     #    task_text = self.cursor.execute("SELECT task FROM tasks WHERE id=?", (taskid,)).fetchall()
     #    return task_text[0][0]
     #
-    #def delete_task(self, taskid):
+    # def delete_task(self, taskid):
     #    """Delete a task"""
     #    self.cursor.execute("DELETE FROM tasks WHERE id=?", (taskid,))
     #    self.con.commit()

@@ -43,7 +43,7 @@ Builder.load_string('''
             MDFillRoundFlatButton:
                 text: "Next"
                 # font_size: 10
-                on_release: app.root.current = "firstscreen"
+                on_release: app.root.current = "project_details"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             
@@ -53,6 +53,7 @@ Builder.load_string('''
             MDScrollView:
                 MDList:
                     id: project_list
+                    font_size: 10
             MDFloatingActionButton:
                 icon: "plus"
                 pos_hint: {"center_x": .85, "center_y": .15}
@@ -69,7 +70,7 @@ class HomeScreen(MDScreen):
         try:
             project_details = db.get_project_information()
             for project in project_details:
-                self.ids.project_list.add_widget(OneLineListItem(text=project[0] + ' ' + project[1]))
+                self.ids.project_list.add_widget(OneLineListItem(text=project[0] + ' ' + project[1], font_style='Caption'))
         except Exception as e:
             print(e)
             pass

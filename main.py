@@ -14,6 +14,7 @@ from kivy.properties import ObjectProperty
 from homescreen import HomeScreen
 from firstscreen import MyScreen1
 from secondscreen import MyScreen2
+from project_details import ProjectDetailsScreen
 
 from db import Database
 # Initialize db instance
@@ -30,6 +31,7 @@ class MainApp(MDApp):
         sm.add_widget(HomeScreen())
         sm.add_widget(MyScreen1())
         sm.add_widget(MyScreen2())
+        sm.add_widget(ProjectDetailsScreen())
         return sm
 
 
