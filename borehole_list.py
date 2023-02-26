@@ -56,7 +56,7 @@ Builder.load_string('''
             MDFloatingActionButton:
                 icon: "plus"
                 pos_hint: {"center_x": .85, "center_y": .15}
-                
+                on_release: root.add_borehole()
 
 ''')
 
@@ -79,5 +79,24 @@ class BoreholeListScreen(MDScreen):
 
     def view_borehole_details(self, onelinelistitem):
         # print(onelinelistitem.text)
-        App.get_running_app().root.current = "borehole_details"
         App.get_running_app().borehole_identifier = onelinelistitem.text.split(' ')[0]
+        App.get_running_app().root.current = "borehole_details"
+
+
+    def add_borehole(self):
+        borehole_to_create = ''
+
+        current_borehole_id = App.get_running_app().borehole_identifier
+        current_job_id = App.get_running_app().project_identifier
+        highest_bh_name = db.get_highest_borehole_name(current_job_id)
+        # print(highest_bh_name[0][0])
+        # print(current_borehole_id)
+        # print(current_job_id)
+
+        if not highest_bh_name:
+            borehole_to_create = current_job_id + '-BH1'
+        else:
+            borehole_to_create = current_job_id + '-BH' + str((int(highest_bh_name[0][0].split("BH", 1)[1])) + 1)
+
+        App.get_running_app().borehole_identifier = borehole_to_create
+        App.get_running_app().root.current = "borehole_details"

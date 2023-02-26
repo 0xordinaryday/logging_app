@@ -41,7 +41,6 @@ class Database:
         return project_details
 
     def get_borehole_list(self, job_id_to_fetch):
-        """Get tasks"""
         borehole_list = self.cursor.execute(
             "SELECT hole_id, easting, northing, date FROM collars WHERE hole_id LIKE ?;""",
             [f"%{job_id_to_fetch}%"]).fetchall()
@@ -64,7 +63,7 @@ class Database:
         specific_project = self.cursor.execute(
             """SELECT * FROM collars WHERE hole_id = ?;""", (borehole_id_to_fetch,))
         # print(self.cursor.fetchall()[0])
-        return self.cursor.fetchall()[0]
+        return self.cursor.fetchall()
 
     # def mark_task_as_complete(self, taskid):
     #    """Marking tasks as complete"""
@@ -96,4 +95,20 @@ class Database:
             "?, fluid = ?, diameter = ? WHERE hole_id = ?",
             (h_id, north, east, ele, start, end, dip, azi, logger, date, drill,
              barrel, fluid, diameter, h_id))
+        self.con.commit()
+
+    def get_highest_borehole_name(self, job_id):
+        borehole_name = self.cursor.execute(
+            "SELECT hole_id FROM collars WHERE hole_id LIKE ? ORDER BY hole_id DESC LIMIT 1;",
+            [f"%{job_id}%"]).fetchall()
+        return borehole_name
+
+    def create_borehole(self, h_id, north, east, ele, start, end, dip, azi, logger, date, drill,
+                        barrel, fluid, diameter):
+        self.cursor.execute(
+            "INSERT INTO collars(hole_id, easting, northing, elevation, starting_depth, ending_depth, inclination, "
+            "azimuth, logged_by, date, drill_model, barrel_type, fluid, diameter) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "?, ?, ?, ?, ?)",
+            (h_id, north, east, ele, start, end, dip, azi, logger, date, drill,
+             barrel, fluid, diameter))
         self.con.commit()

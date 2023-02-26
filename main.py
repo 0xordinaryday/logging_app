@@ -18,7 +18,7 @@ db = Database()
 
 class MainApp(MDApp):
     project_identifier = StringProperty('')  # blank to start with
-    borehole_identifier = StringProperty('')  # blank to start with
+    borehole_identifier = StringProperty('None set')  # blank to start with
     Window.softinput_mode = 'below_target'  # so keyboard doesn't cover textinput
 
     def build(self):

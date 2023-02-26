@@ -1,3 +1,5 @@
+import datetime
+
 from kivy.app import App
 from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
@@ -242,21 +244,44 @@ class BoreholeDetailsScreen(MDScreen):
         try:
             # print(App.get_running_app().data) # a variable to hold the project number
             specific_borehole = db.get_specific_borehole_information(App.get_running_app().borehole_identifier)
-            # print(specific_borehole)
-            self.ids.borehole_id.text = specific_borehole[0]
-            self.ids.easting_id.text = str(specific_borehole[1])
-            self.ids.northing_id.text = str(specific_borehole[2])
-            self.ids.elevation_id.text = str(specific_borehole[3])
-            self.ids.startdepth_id.text = str(specific_borehole[4])
-            self.ids.enddepth_id.text = str(specific_borehole[5])
-            self.ids.dip_id.text = str(specific_borehole[6])
-            self.ids.azimuth_id.text = str(specific_borehole[7])
-            self.ids.logged_id.text = specific_borehole[8]
-            self.ids.date_id.text = specific_borehole[9]
-            self.ids.rig_id.text = specific_borehole[10]
-            self.ids.barrel_id.text = specific_borehole[11]
-            self.ids.fluid_id.text = specific_borehole[12]
-            self.ids.diameter_id.text = specific_borehole[13]
+
+            if not specific_borehole:  # does not yet exist
+                self.ids.borehole_id.text = App.get_running_app().borehole_identifier
+                self.ids.easting_id.text = '-1'
+                self.ids.northing_id.text = '-1'
+                self.ids.elevation_id.text = '-1'
+                self.ids.startdepth_id.text = '0'
+                self.ids.enddepth_id.text = '-1'
+                self.ids.dip_id.text = '-90'
+                self.ids.azimuth_id.text = '0'
+                self.ids.logged_id.text = ''
+                self.ids.date_id.text = datetime.date.today().strftime("%B %d, %Y")
+                self.ids.rig_id.text = ''
+                self.ids.barrel_id.text = ''
+                self.ids.fluid_id.text = 'None'
+                self.ids.diameter_id.text = ''
+                db.create_borehole(self.ids.borehole_id.text, float(self.ids.easting_id.text),
+                              float(self.ids.northing_id.text), float(self.ids.elevation_id.text),
+                              float(self.ids.startdepth_id.text), float(self.ids.enddepth_id.text),
+                              int(self.ids.dip_id.text), int(self.ids.azimuth_id.text), self.ids.logged_id.text,
+                              self.ids.date_id.text, self.ids.rig_id.text, self.ids.barrel_id.text,
+                              self.ids.fluid_id.text, self.ids.diameter_id.text)
+            else:
+                bh = specific_borehole[0]
+                self.ids.borehole_id.text = bh[0]
+                self.ids.easting_id.text = str(bh[1])
+                self.ids.northing_id.text = str(bh[2])
+                self.ids.elevation_id.text = str(bh[3])
+                self.ids.startdepth_id.text = str(bh[4])
+                self.ids.enddepth_id.text = str(bh[5])
+                self.ids.dip_id.text = str(bh[6])
+                self.ids.azimuth_id.text = str(bh[7])
+                self.ids.logged_id.text = bh[8]
+                self.ids.date_id.text = bh[9]
+                self.ids.rig_id.text = bh[10]
+                self.ids.barrel_id.text = bh[11]
+                self.ids.fluid_id.text = bh[12]
+                self.ids.diameter_id.text = bh[13]
 
             self.ids.borehole_id.bind(text=self.on_text)
             self.ids.easting_id.bind(text=self.on_text)
