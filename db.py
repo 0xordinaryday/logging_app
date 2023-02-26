@@ -21,6 +21,11 @@ class Database:
             (job_id, client, project_name, location))
         self.con.commit()
 
+    def delete_project(self, job_id):
+        """Create a new project"""
+        self.cursor.execute("DELETE FROM project_information WHERE job_id = ?", (job_id,))
+        self.con.commit()
+
     #
     #    # GETTING THE LAST ENTERED ITEM SO WE CAN ADD IT TO THE TASK LIST
     #    created_task = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE task = ? and completed = 0",
