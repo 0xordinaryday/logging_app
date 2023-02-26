@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.lang import Builder
+from kivymd.toast import toast
 from kivymd.uix.list import OneLineListItem, ILeftBodyTouch, OneLineAvatarIconListItem
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.selectioncontrol import MDCheckbox
@@ -72,7 +73,7 @@ Builder.load_string('''
         theme_text_color: "Custom"
         text_color: 1, 0, 0, 1
         on_release:
-            root.delete_project(the_project)
+            root.delete_project(check, the_project)
 
 ''')
 
@@ -109,15 +110,19 @@ class ListItemWithCheckbox(OneLineAvatarIconListItem):
         """mark the task as complete or incomplete"""
         if check.active:
             the_project.text = '[s]' + the_project.text + '[/s]'
+        elif '[s]' in the_project.text:
+            the_project.text = the_project.text[3:-4]
         else:
             pass
 
-    def delete_project(self, the_project):
+    def delete_project(self, check, the_project):
         """Delete the project"""
-        self.parent.remove_widget(the_project)
-        print(the_project.text[3:].split(' ')[0])
-        db.delete_project(the_project.text[3:].split(' ')[0])  # Here
-
+        if check.active:
+            self.parent.remove_widget(the_project)
+            print(the_project.text[3:].split(' ')[0])
+            db.delete_project(the_project.text[3:].split(' ')[0])  # Here
+        else:
+            toast('Check the box if you want to delete the project')
 
 class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
     """Custom left container"""

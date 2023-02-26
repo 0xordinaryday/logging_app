@@ -1,5 +1,6 @@
 import kivy
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
@@ -26,6 +27,7 @@ db = Database()
 
 class MainApp(MDApp):
     data = StringProperty('some value')
+    Window.softinput_mode = 'below_target' # so keyboard doesn't cover textinput
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
