@@ -98,9 +98,9 @@ Builder.load_string('''
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             MDFillRoundFlatButton:
-                text: "Done"
+                text: "Boreholes"
                 # font_size: 10
-                on_release: app.root.current = "firstscreen"
+                on_release: app.root.current = "borehole_list"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
 

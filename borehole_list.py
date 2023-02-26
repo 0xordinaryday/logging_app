@@ -9,7 +9,7 @@ from db import Database
 db = Database()
 
 Builder.load_string('''
-<HomeScreen>:
+<BoreholeListScreen>:
     id: borehole_list_id
     name: "borehole_list"
     MDBoxLayout:
@@ -60,18 +60,19 @@ Builder.load_string('''
 ''')
 
 
-class BoreholeList(MDScreen):
+class BoreholeListScreen(MDScreen):
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is
         complete."""
         try:
-            project_details = db.get_project_information()
-            self.ids.project_list.clear_widgets()  # if there are any already
-            for project in project_details:
-                self.ids.project_list.add_widget(
-                    OneLineListItem(text=project[0] + ' ' + project[1], font_style='Body2',
-                                    on_release=self.do_something))
+            borehole_list = db.get_borehole_list(App.get_running_app().data)
+            print(borehole_list)
+            # self.ids.project_list.clear_widgets()  # if there are any already
+            # for project in project_details:
+            #     self.ids.project_list.add_widget(
+            #         OneLineListItem(text=project[0] + ' ' + project[1], font_style='Body2',
+            #                         on_release=self.do_something))
         except Exception as e:
             print(e)
             pass

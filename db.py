@@ -40,6 +40,15 @@ class Database:
 
         return project_details
 
+    def get_borehole_list(self, job_id_to_fetch):
+        """Get tasks"""
+        borehole_list = self.cursor.execute(
+            "SELECT hole_id, easting, northing, date FROM collars WHERE hole_id LIKE ?;""",
+            [f"%{job_id_to_fetch}%"]).fetchall()
+        # completed_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 1").fetchall()
+
+        return borehole_list
+
     def get_specific_project_information(self, job_id_to_fetch):
         """Get tasks"""
         specific_project = self.cursor.execute(
