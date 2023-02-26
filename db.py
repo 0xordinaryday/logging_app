@@ -87,3 +87,13 @@ class Database:
 
     def close_db_connection(self):
         self.con.close()
+
+    def update_collar_data(self, h_id, north, east, ele, start, end, dip, azi, logger, date, drill,
+                           barrel, fluid, diameter):
+        self.cursor.execute(
+            "UPDATE collars SET hole_id = ?, easting = ?, northing = ?, elevation = ?, starting_depth = ?, "
+            "ending_depth = ?, inclination = ?, azimuth = ?, logged_by = ?, date = ?, drill_model = ?, barrel_type = "
+            "?, fluid = ?, diameter = ? WHERE hole_id = ?",
+            (h_id, north, east, ele, start, end, dip, azi, logger, date, drill,
+             barrel, fluid, diameter, h_id))
+        self.con.commit()

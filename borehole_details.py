@@ -1,11 +1,7 @@
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.screenmanager import Screen
-from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.list import OneLineListItem
-from kivy.clock import Clock
-from kivymd.uix.button import MDFloatingActionButton
+
 from db import Database
 
 # Initialize db instance
@@ -230,8 +226,14 @@ Builder.load_string('''
 class BoreholeDetailsScreen(MDScreen):
 
     def on_text(self, instance, value):
-        print('The widget', instance, 'have:', value)
-        print(instance.text)
+        # print('The widget', instance, 'have:', value)
+        # print(self.ids.borehole_id.text)
+        db.update_collar_data(self.ids.borehole_id.text, float(self.ids.easting_id.text),
+                              float(self.ids.northing_id.text), float(self.ids.elevation_id.text),
+                              float(self.ids.startdepth_id.text), float(self.ids.enddepth_id.text),
+                              int(self.ids.dip_id.text), int(self.ids.azimuth_id.text), self.ids.logged_id.text,
+                              self.ids.date_id.text, self.ids.rig_id.text, self.ids.barrel_id.text,
+                              self.ids.fluid_id.text, self.ids.diameter_id.text)
 
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
@@ -240,7 +242,7 @@ class BoreholeDetailsScreen(MDScreen):
         try:
             # print(App.get_running_app().data) # a variable to hold the project number
             specific_borehole = db.get_specific_borehole_information(App.get_running_app().borehole_identifier)
-            print(specific_borehole)
+            # print(specific_borehole)
             self.ids.borehole_id.text = specific_borehole[0]
             self.ids.easting_id.text = str(specific_borehole[1])
             self.ids.northing_id.text = str(specific_borehole[2])
