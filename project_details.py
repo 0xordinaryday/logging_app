@@ -114,7 +114,7 @@ class ProjectDetailsScreen(MDScreen):
         complete."""
         try:
             # print(App.get_running_app().data) # a variable to hold the project number
-            specific_project = db.get_specific_project_information(App.get_running_app().data)
+            specific_project = db.get_specific_project_information(App.get_running_app().project_identifier)
             self.ids.project_number_id.text = specific_project[0]
             self.ids.client_id.text = specific_project[1]
             self.ids.location_id.text = specific_project[3]

@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.lang import Builder
+from kivymd.toast import toast
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.screen import MDScreen
 
@@ -50,7 +51,7 @@ Builder.load_string('''
             # pos_hint: {"top": 0.1}
             MDScrollView:
                 MDList:
-                    id: project_list
+                    id: borehole_list
                     font_size: 10
             MDFloatingActionButton:
                 icon: "plus"
@@ -66,18 +67,17 @@ class BoreholeListScreen(MDScreen):
         """Event fired when the screen is displayed: the entering animation is
         complete."""
         try:
-            borehole_list = db.get_borehole_list(App.get_running_app().data)
-            print(borehole_list)
-            # self.ids.project_list.clear_widgets()  # if there are any already
-            # for project in project_details:
-            #     self.ids.project_list.add_widget(
-            #         OneLineListItem(text=project[0] + ' ' + project[1], font_style='Body2',
-            #                         on_release=self.do_something))
+            borehole_list = db.get_borehole_list(App.get_running_app().project_identifier)
+            self.ids.borehole_list.clear_widgets()  # if there are any already
+            for borehole in borehole_list:
+                self.ids.borehole_list.add_widget(
+                    OneLineListItem(text=borehole[0] + ' ' + borehole[3], font_style='Body2',
+                                    on_release=self.view_borehole_details))
         except Exception as e:
             print(e)
             pass
 
-    def do_something(self, onelinelistitem):
+    def view_borehole_details(self, onelinelistitem):
         # print(onelinelistitem.text)
-        App.get_running_app().root.current = "project_details"
-        App.get_running_app().data = onelinelistitem.text.split(' ')[0]
+        App.get_running_app().root.current = "borehole_details"
+        App.get_running_app().borehole_identifier = onelinelistitem.text.split(' ')[0]

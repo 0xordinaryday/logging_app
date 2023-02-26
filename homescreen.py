@@ -97,7 +97,7 @@ class HomeScreen(MDScreen):
     def view_project(self, onelinelistitem):
         # print(onelinelistitem.text)
         App.get_running_app().root.current = "project_details"
-        App.get_running_app().data = onelinelistitem.text.split(' ')[0]
+        App.get_running_app().project_identifier = onelinelistitem.text.split(' ')[0]
 
 
 class ListItemWithCheckbox(OneLineAvatarIconListItem):

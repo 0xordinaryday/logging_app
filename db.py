@@ -59,6 +59,13 @@ class Database:
 
         return self.cursor.fetchall()[0]
 
+    def get_specific_borehole_information(self, borehole_id_to_fetch):
+        """Get tasks"""
+        specific_project = self.cursor.execute(
+            """SELECT * FROM collars WHERE hole_id = ?;""", (borehole_id_to_fetch,))
+        # print(self.cursor.fetchall()[0])
+        return self.cursor.fetchall()[0]
+
     # def mark_task_as_complete(self, taskid):
     #    """Marking tasks as complete"""
     #    self.cursor.execute("UPDATE tasks SET completed=1 WHERE id=?", (taskid,))
