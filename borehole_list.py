@@ -10,13 +10,13 @@ db = Database()
 
 Builder.load_string('''
 <HomeScreen>:
-    id: homescreen_id
-    name: "homescreen"
+    id: borehole_list_id
+    name: "borehole_list"
     MDBoxLayout:
         orientation: 'vertical'
         
         MDTopAppBar:
-            title: 'Projects'
+            title: 'Project Boreholes'
             # size_hint: 1,0.1
             
         MDBoxLayout:
@@ -55,13 +55,12 @@ Builder.load_string('''
             MDFloatingActionButton:
                 icon: "plus"
                 pos_hint: {"center_x": .85, "center_y": .15}
-                on_release: app.root.current = "new_project"
                 
 
 ''')
 
 
-class HomeScreen(MDScreen):
+class BoreholeList(MDScreen):
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is

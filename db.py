@@ -14,10 +14,13 @@ class Database:
         self.cursor.executescript(sql_script)
         self.con.commit()
 
-    # def create_task(self, task, due_date=None):
-    #    """Create a task"""
-    #    self.cursor.execute("INSERT INTO tasks(task, due_date, completed) VALUES(?, ?, ?)", (task, due_date, 0))
-    #    self.con.commit()
+    def create_project(self, job_id, client, project_name, location):
+        """Create a new project"""
+        self.cursor.execute(
+            "INSERT INTO project_information(job_id, client, project_name, location) VALUES(?, ?, ?, ?)",
+            (job_id, client, project_name, location))
+        self.con.commit()
+
     #
     #    # GETTING THE LAST ENTERED ITEM SO WE CAN ADD IT TO THE TASK LIST
     #    created_task = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE task = ? and completed = 0",
@@ -35,7 +38,8 @@ class Database:
     def get_specific_project_information(self, job_id_to_fetch):
         """Get tasks"""
         specific_project = self.cursor.execute(
-            """SELECT job_id, client, project_name, location FROM project_information WHERE job_id = ?;""", (job_id_to_fetch,))
+            """SELECT job_id, client, project_name, location FROM project_information WHERE job_id = ?;""",
+            (job_id_to_fetch,))
         # completed_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 1").fetchall()
         # print(self.cursor.fetchall()[0])
 

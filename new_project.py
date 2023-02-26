@@ -1,26 +1,22 @@
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.screenmanager import Screen
-from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.list import OneLineListItem
-from kivy.clock import Clock
-from kivymd.uix.button import MDFloatingActionButton
+
 from db import Database
 
 # Initialize db instance
 db = Database()
 
 Builder.load_string('''
-<ProjectDetailsScreen>:
-    id: project_details_id
-    name: "project_details"
+<NewProjectScreen>:
+    id: new_project_id
+    name: "new_project"
     
     MDBoxLayout:
         orientation: 'vertical'
         
         MDTopAppBar:
-            title: 'Project Details'
+            title: 'New Project'
             # size_hint: 1,0.1
             
         MDLabel:
@@ -30,11 +26,11 @@ Builder.load_string('''
             padding: (10,0)
             size_hint: 1,0.1
             
-        MDLabel:
-            padding: (10,0)
+        MDTextField:
+            padding: [10,0]
             id: project_number_id
             font_size: '14sp'
-            text: ""
+            hint_text: "Enter project number"
             size_hint: 1,0.1
             
         MDLabel:
@@ -44,11 +40,11 @@ Builder.load_string('''
             text: "Project Type"
             size_hint: 1,0.1
             
-        MDLabel:
+        MDTextField:
             padding: (10,0)
             id: project_type_id
             font_size: '14sp'
-            text: ""
+            hint_text: "Enter project type"
             size_hint: 1,0.1
             
         MDLabel:
@@ -58,11 +54,11 @@ Builder.load_string('''
             text: "Client"
             size_hint: 1,0.1
             
-        MDLabel:
+        MDTextField:
             padding: (10,0)
             id: client_id
             font_size: '14sp'
-            text: ""
+            hint_text: "Enter client"
             size_hint: 1,0.1
         
         MDLabel:
@@ -72,11 +68,11 @@ Builder.load_string('''
             text: "Location"
             size_hint: 1,0.1
             
-        MDLabel:
+        MDTextField:
             padding: (10,0)
             id: location_id
             font_size: '14sp'
-            text: ""
+            hint_text: "Enter location"
             size_hint: 1,0.1
             
         MDBoxLayout:
@@ -100,30 +96,35 @@ Builder.load_string('''
             MDFillRoundFlatButton:
                 text: "Done"
                 # font_size: 10
-                on_release: app.root.current = "firstscreen"
+                on_release: root.commit_changes()
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
 
 ''')
 
 
-class ProjectDetailsScreen(MDScreen):
+class NewProjectScreen(MDScreen):
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is
         complete."""
         try:
+            pass
             # print(App.get_running_app().data) # a variable to hold the project number
-            specific_project = db.get_specific_project_information(App.get_running_app().data)
-            self.ids.project_number_id.text = specific_project[0]
-            self.ids.client_id.text = specific_project[1]
-            self.ids.location_id.text = specific_project[3]
-            self.ids.project_type_id.text = specific_project[2]
-            # specific_project[0] job_id
-            # specific_project[1] client
-            # specific_project[2] project_type
-            # specific_project[3] location
+            # specific_project = db.get_specific_project_information(App.get_running_app().data)
+            # self.ids.project_number_id.text = specific_project[0]
+            # self.ids.client_id.text = specific_project[1]
+            # self.ids.location_id.text = specific_project[3]
+            # self.ids.project_type_id.text = specific_project[2]
         except Exception as e:
             print(e)
             pass
 
+    def commit_changes(self):
+        db.create_project(self.ids.project_number_id.text, self.ids.client_id.text, self.ids.project_type_id.text,
+                          self.ids.location_id.text)
+        # print(self.ids.project_number_id.text)
+        # print(self.ids.project_type_id.text)
+        # print(self.ids.client_id.text)
+        # print(self.ids.location_id.text)
+        App.get_running_app().root.current = "homescreen"

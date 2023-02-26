@@ -16,6 +16,7 @@ from homescreen import HomeScreen
 from firstscreen import MyScreen1
 from secondscreen import MyScreen2
 from project_details import ProjectDetailsScreen
+from new_project import NewProjectScreen
 
 from db import Database
 
@@ -35,6 +36,7 @@ class MainApp(MDApp):
         sm.add_widget(MyScreen1())
         sm.add_widget(MyScreen2())
         sm.add_widget(ProjectDetailsScreen())
+        sm.add_widget(NewProjectScreen())
         return sm
 
 
