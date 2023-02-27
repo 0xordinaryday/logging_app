@@ -11,6 +11,7 @@ from project_details import ProjectDetailsScreen
 from secondscreen import MyScreen2
 from borehole_list import BoreholeListScreen
 from borehole_details import BoreholeDetailsScreen
+from strata import StrataScreen
 
 # Initialize db instance
 db = Database()
@@ -33,6 +34,7 @@ class MainApp(MDApp):
         sm.add_widget(NewProjectScreen())
         sm.add_widget(BoreholeListScreen())
         sm.add_widget(BoreholeDetailsScreen())
+        sm.add_widget(StrataScreen())
         return sm
 
 

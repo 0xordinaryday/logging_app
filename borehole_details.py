@@ -14,213 +14,216 @@ Builder.load_string('''
     id: borehole_details_id
     name: "borehole_details"
     
-    MDScrollView:
-        do_scroll_x: False
-        do_scroll_y: True    
-        MDGridLayout:
-            cols: 1
-            size_hint_y: None
-            height: self.minimum_height
-            row_force_default: True
-            row_default_height: "40dp"
-            padding: 10
+    MDBoxLayout:
+        orientation: "vertical"
+        
+        MDTopAppBar:
+            title: 'Borehole Details'
+            # size_hint: 1,0.1
             
-            MDTopAppBar:
-                title: 'Borehole Details'
-                # size_hint: 1,0.1
-                
-            MDLabel:
-                # md_bg_color: app.theme_cls.primary_light
-                font_size: '18sp'
-                bold: True
-                text: "Borehole ID"
-                
-            MDTextField:
-                id: borehole_id
-                font_size: '16sp'
-                text: ""
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Easting"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: easting_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Northing"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: northing_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Elevation"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: elevation_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Start Depth"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: startdepth_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
+        MDBoxLayout:
+            spacing: "10dp"
+            size_hint: 0.9,0.3
+            pos_hint: {"center_x": .5}
+            MDFillRoundFlatButton:
+                text: "Exit"
+                # # font_size: 12
+                md_bg_color: "#fefbff"
+                on_release: app.stop()
+                size_hint: 0.25, 0.3
+                pos_hint: {"center_x": .5, "center_y": .5}
+            MDFillRoundFlatButton:
+                text: "Home"
+                # # font_size: 12
+                md_bg_color: "#fefbff"
+                on_release: app.root.current = "homescreen"
+                size_hint: 0.25, 0.3
+                pos_hint: {"center_x": .5, "center_y": .5}
+            MDFillRoundFlatButton:
+                text: "Boreholes"
+                # font_size: 10
+                on_release: app.root.current = "borehole_list"
+                size_hint: 0.25, 0.3
+                pos_hint: {"center_x": .5, "center_y": .5}
+    
+        MDScrollView:
+            do_scroll_x: False
+            do_scroll_y: True    
+            MDGridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                row_force_default: True
+                row_default_height: "40dp"
+                padding: 10
                     
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "End Depth"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: enddepth_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1 
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Hole Dip"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: dip_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1  
+                MDLabel:
+                    # md_bg_color: app.theme_cls.primary_light
+                    font_size: '18sp'
+                    bold: True
+                    text: "Borehole ID"
                     
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Hole Azimuth"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: azimuth_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1         
-            
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Date Commenced"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: date_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Logged By"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: logged_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Rig"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: rig_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Barrel Type"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: barrel_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                on_text: 
+                MDTextField:
+                    id: borehole_id
+                    font_size: '16sp'
+                    text: ""
                     
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Fluid Used"
-                # size_hint: 1,0.1
-                
-            MDTextField:
-                id: fluid_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Easting"
+                    # size_hint: 1,0.1
                     
-            MDLabel:
-                font_size: '18sp'
-                bold: True
-                text: "Hole Diameter"
-                # size_hint: 1,0.1
+                MDTextField:
+                    id: easting_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                    
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Northing"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: northing_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                    
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Elevation"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: elevation_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                    
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Start Depth"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: startdepth_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                        
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "End Depth"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: enddepth_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1 
+                    
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Hole Dip"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: dip_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1  
+                        
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Hole Azimuth"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: azimuth_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1         
                 
-            MDTextField:
-                id: diameter_id
-                font_size: '16sp'
-                text: ""
-                # size_hint: 1,0.1
-                
-            MDBoxLayout:
-                spacing: "10dp"
-                size_hint: 0.9,0.5
-                pos_hint: {"center_x": .5}
-                MDFillRoundFlatButton:
-                    text: "Exit"
-                    # # font_size: 12
-                    md_bg_color: "#fefbff"
-                    on_release: app.stop()
-                    size_hint: 0.25, 0.9
-                    pos_hint: {"center_x": .5, "center_y": .5}
-                MDFillRoundFlatButton:
-                    text: "Home"
-                    # # font_size: 12
-                    md_bg_color: "#fefbff"
-                    on_release: app.root.current = "homescreen"
-                    size_hint: 0.25, 0.9
-                    pos_hint: {"center_x": .5, "center_y": .5}
-                MDFillRoundFlatButton:
-                    text: "Boreholes"
-                    # font_size: 10
-                    on_release: app.root.current = "borehole_list"
-                    size_hint: 0.25, 0.9
-                    pos_hint: {"center_x": .5, "center_y": .5}
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Date Commenced"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: date_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                    
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Logged By"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: logged_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                    
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Rig"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: rig_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                    
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Barrel Type"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: barrel_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                    on_text: 
+                        
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Fluid Used"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: fluid_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
+                        
+                MDLabel:
+                    font_size: '18sp'
+                    bold: True
+                    text: "Hole Diameter"
+                    # size_hint: 1,0.1
+                    
+                MDTextField:
+                    id: diameter_id
+                    font_size: '16sp'
+                    text: ""
+                    # size_hint: 1,0.1
 
 ''')
 

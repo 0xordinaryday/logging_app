@@ -41,9 +41,9 @@ Builder.load_string('''
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             MDFillRoundFlatButton:
-                text: "Next"
+                text: "StrataT"
                 # font_size: 10
-                on_release: app.root.current = "project_details"
+                on_release: app.root.current = "strata"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             

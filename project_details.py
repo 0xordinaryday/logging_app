@@ -23,62 +23,6 @@ Builder.load_string('''
             title: 'Project Details'
             # size_hint: 1,0.1
             
-        MDLabel:
-            font_size: '16sp'
-            bold: True
-            text: "Project Number"
-            padding: (10,0)
-            size_hint: 1,0.1
-            
-        MDLabel:
-            padding: (10,0)
-            id: project_number_id
-            font_size: '14sp'
-            text: ""
-            size_hint: 1,0.1
-            
-        MDLabel:
-            padding: (10,0)
-            font_size: '16sp'
-            bold: True
-            text: "Project Type"
-            size_hint: 1,0.1
-            
-        MDLabel:
-            padding: (10,0)
-            id: project_type_id
-            font_size: '14sp'
-            text: ""
-            size_hint: 1,0.1
-            
-        MDLabel:
-            padding: (10,0)
-            font_size: '16sp'
-            bold: True
-            text: "Client"
-            size_hint: 1,0.1
-            
-        MDLabel:
-            padding: (10,0)
-            id: client_id
-            font_size: '14sp'
-            text: ""
-            size_hint: 1,0.1
-        
-        MDLabel:
-            font_size: '16sp'
-            bold: True
-            padding: (10,0)
-            text: "Location"
-            size_hint: 1,0.1
-            
-        MDLabel:
-            padding: (10,0)
-            id: location_id
-            font_size: '14sp'
-            text: ""
-            size_hint: 1,0.1
-            
         MDBoxLayout:
             spacing: "10dp"
             size_hint: 0.9,0.3
@@ -103,6 +47,73 @@ Builder.load_string('''
                 on_release: app.root.current = "borehole_list"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
+        
+        MDScrollView:
+            MDGridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                row_force_default: True
+                row_default_height: "40dp"
+                padding: 10
+            
+                MDLabel:
+                    font_size: '16sp'
+                    bold: True
+                    text: "Project Number"
+                    padding: (10,0)
+                    size_hint: 1,0.1
+                    
+                MDLabel:
+                    padding: (10,0)
+                    id: project_number_id
+                    font_size: '14sp'
+                    text: ""
+                    size_hint: 1,0.1
+                    
+                MDLabel:
+                    padding: (10,0)
+                    font_size: '16sp'
+                    bold: True
+                    text: "Project Type"
+                    size_hint: 1,0.1
+                    
+                MDLabel:
+                    padding: (10,0)
+                    id: project_type_id
+                    font_size: '14sp'
+                    text: ""
+                    size_hint: 1,0.1
+                    
+                MDLabel:
+                    padding: (10,0)
+                    font_size: '16sp'
+                    bold: True
+                    text: "Client"
+                    size_hint: 1,0.1
+                    
+                MDLabel:
+                    padding: (10,0)
+                    id: client_id
+                    font_size: '14sp'
+                    text: ""
+                    size_hint: 1,0.1
+                
+                MDLabel:
+                    font_size: '16sp'
+                    bold: True
+                    padding: (10,0)
+                    text: "Location"
+                    size_hint: 1,0.1
+                    
+                MDLabel:
+                    padding: (10,0)
+                    id: location_id
+                    font_size: '14sp'
+                    text: ""
+                    size_hint: 1,0.1
+            
+        
 
 ''')
 

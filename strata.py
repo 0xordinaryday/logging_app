@@ -1,6 +1,8 @@
+from kivy.animation import Animation
 from kivy.app import App
 from kivy.lang import Builder
 from kivymd.toast import toast
+from kivymd.uix.chip import MDChip
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.screen import MDScreen
 
@@ -10,14 +12,29 @@ from db import Database
 db = Database()
 
 Builder.load_string('''
-<BoreholeListScreen>:
-    id: borehole_list_id
-    name: "borehole_list"
+<StrataScreen>:
+    id: strata_id
+    name: "strata"
+    
+    MDBoxLayout:
+        id: chip_box
+        adaptive_size: True
+        spacing: "8dp"
+
+        MyChip:
+            text: "ROCK"
+            on_active: if self.active: root.removes_marks_all_chips(self)
+
+        MyChip:
+            text: "SOIL"
+            active: True
+            on_active: if self.active: root.removes_marks_all_chips(self)
+                
     MDBoxLayout:
         orientation: 'vertical'
         
         MDTopAppBar:
-            title: 'Project Boreholes'
+            title: 'Strata'
             # size_hint: 1,0.1
             
         MDBoxLayout:
@@ -52,7 +69,7 @@ Builder.load_string('''
             MDScrollView:
                 MDList:
                     id: borehole_list
-                    font_size: "14sp"
+                    font_size: 10
             MDFloatingActionButton:
                 icon: "plus"
                 pos_hint: {"center_x": .85, "center_y": .15}
@@ -61,7 +78,13 @@ Builder.load_string('''
 ''')
 
 
-class BoreholeListScreen(MDScreen):
+class StrataScreen(MDScreen):
+
+    def removes_marks_all_chips(self, selected_instance_chip):
+        for instance_chip in self.ids.chip_box.children:
+            if instance_chip != selected_instance_chip:
+                instance_chip.active = False
+
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is
@@ -100,3 +123,38 @@ class BoreholeListScreen(MDScreen):
 
         App.get_running_app().borehole_identifier = borehole_to_create
         App.get_running_app().root.current = "borehole_details"
+
+class MyChip(MDChip):
+    icon_check_color = (0, 0, 0, 1)
+    text_color = (0, 0, 0, 0.5)
+    _no_ripple_effect = True
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.bind(active=self.set_chip_bg_color)
+        self.bind(active=self.set_chip_text_color)
+
+    def set_chip_bg_color(self, instance_chip, active_value: int):
+        '''
+        Will be called every time the chip is activated/deactivated.
+        Sets the background color of the chip.
+        '''
+
+        self.md_bg_color = (
+            (0, 0, 0, 0.4)
+            if active_value
+            else (
+                self.theme_cls.bg_darkest
+                if self.theme_cls.theme_style == "Light"
+                else (
+                    self.theme_cls.bg_light
+                    if not self.disabled
+                    else self.theme_cls.disabled_hint_text_color
+                )
+            )
+        )
+
+    def set_chip_text_color(self, instance_chip, active_value: int):
+        Animation(
+            color=(0, 0, 0, 1) if active_value else (0, 0, 0, 0.5), d=0.2
+        ).start(self.ids.label)
