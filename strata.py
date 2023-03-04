@@ -1,8 +1,6 @@
-from kivy.animation import Animation
 from kivy.app import App
 from kivy.lang import Builder
-from kivymd.toast import toast
-from kivymd.uix.chip import MDChip
+from kivy.uix.togglebutton import ToggleButton
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.screen import MDScreen
 
@@ -17,25 +15,62 @@ Builder.load_string('''
     name: "strata"
     
     MDBoxLayout:
-        id: chip_box
-        adaptive_size: True
-        spacing: "8dp"
-
-        MyChip:
-            text: "ROCK"
-            on_active: if self.active: root.removes_marks_all_chips(self)
-
-        MyChip:
-            text: "SOIL"
-            active: True
-            on_active: if self.active: root.removes_marks_all_chips(self)
-                
-    MDBoxLayout:
         orientation: 'vertical'
         
         MDTopAppBar:
             title: 'Strata'
             # size_hint: 1,0.1
+            
+        MDBoxLayout:
+            # id: strata_box
+            orientation: 'horizontal'
+            spacing: "10dp"
+            size_hint: 1,0.2
+            ToggleButton:
+                id: toggle_rock
+                text: 'Rock' 
+                group: 'material'
+                on_release: root.talk_to_me(self)
+            ToggleButton:
+                id: toggle_soil
+                text: 'Soil'
+                group: 'material'
+                on_release: root.talk_to_me(self)
+                
+        MDSeparator:
+                
+        MDBoxLayout:
+            id: strata_box
+            orientation: 'horizontal'
+            spacing: "5dp"
+            size_hint: 1,0.2
+            
+        MDSeparator:
+            
+        MDBoxLayout:
+            id: prefix_box
+            orientation: 'horizontal'
+            spacing: "10dp"
+            size_hint: 1.0,0.18
+            
+        MDSeparator:
+                
+        # MDBoxLayout:
+        #     orientation: 'horizontal'
+        #     spacing: "10dp"
+        #     size_hint: 1,0.2
+        #     ToggleButton:
+        #         id: toggle_black
+        #         text: 'Black' 
+        #         group: 'colour'
+        #         on_state: toggle_soil.state = "down" if toggle_soil.state == "normal" else "normal"
+        #         on_release: root.talk_to_me(self)
+        #     ToggleButton:
+        #         id: toggle_white
+        #         text: 'White'
+        #         group: 'colour'
+        #         state: 'down'
+        #         on_release: root.talk_to_me(self)
             
         MDBoxLayout:
             spacing: "10dp"
@@ -68,7 +103,7 @@ Builder.load_string('''
             # pos_hint: {"top": 0.1}
             MDScrollView:
                 MDList:
-                    id: borehole_list
+                    id: interval_list
                     font_size: 10
             MDFloatingActionButton:
                 icon: "plus"
@@ -90,21 +125,14 @@ class StrataScreen(MDScreen):
         """Event fired when the screen is displayed: the entering animation is
         complete."""
         try:
-            borehole_list = db.get_borehole_list(App.get_running_app().project_identifier)
-            self.ids.borehole_list.clear_widgets()  # if there are any already
-            for borehole in borehole_list:
-                self.ids.borehole_list.add_widget(
-                    OneLineListItem(text=borehole[0] + ' ' + borehole[3], font_style='Body2',
-                                    on_release=self.view_borehole_details))
+            # borehole_intervals = db.get_borehole_intervals(App.get_running_app().borehole_identifier)
+            self.ids.interval_list.clear_widgets()  # if there are any already
+            borehole_intervals = ['0.0 - 1.0', '1.0 - 1.5', '1.5 - 2.2']
+            for interval in borehole_intervals:
+                self.ids.interval_list.add_widget(OneLineListItem(text=interval, font_style='Body2'))
         except Exception as e:
             print(e)
             pass
-
-    def view_borehole_details(self, onelinelistitem):
-        # print(onelinelistitem.text)
-        App.get_running_app().borehole_identifier = onelinelistitem.text.split(' ')[0]
-        App.get_running_app().root.current = "borehole_details"
-
 
     def add_borehole(self):
         borehole_to_create = ''
@@ -112,9 +140,6 @@ class StrataScreen(MDScreen):
         current_borehole_id = App.get_running_app().borehole_identifier
         current_job_id = App.get_running_app().project_identifier
         highest_bh_name = db.get_highest_borehole_name(current_job_id)
-        # print(highest_bh_name[0][0])
-        # print(current_borehole_id)
-        # print(current_job_id)
 
         if not highest_bh_name:
             borehole_to_create = current_job_id + '-BH1'
@@ -124,37 +149,25 @@ class StrataScreen(MDScreen):
         App.get_running_app().borehole_identifier = borehole_to_create
         App.get_running_app().root.current = "borehole_details"
 
-class MyChip(MDChip):
-    icon_check_color = (0, 0, 0, 1)
-    text_color = (0, 0, 0, 0.5)
-    _no_ripple_effect = True
+    def talk_to_me(self, instance):
+        self.ids.strata_box.clear_widgets()
+        self.ids.prefix_box.clear_widgets()
+        if instance.text == 'Soil':
+            stuff = ['CLAY', 'SILT', 'SAND', 'GRAVEL']
+            for thing in stuff:
+                toggle = ToggleButton(text=thing, group='major')
+                self.ids.strata_box.add_widget(toggle)
+            prefixes = ['Clayey', 'Silty', 'Sandy', 'Gravelly']
+            for item in prefixes:
+                toggle = ToggleButton(text=item)
+                self.ids.prefix_box.add_widget(toggle)
+            for child in self.ids.prefix_box.children:
+                child.bind(on_release=self.child_selected)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.bind(active=self.set_chip_bg_color)
-        self.bind(active=self.set_chip_text_color)
-
-    def set_chip_bg_color(self, instance_chip, active_value: int):
-        '''
-        Will be called every time the chip is activated/deactivated.
-        Sets the background color of the chip.
-        '''
-
-        self.md_bg_color = (
-            (0, 0, 0, 0.4)
-            if active_value
-            else (
-                self.theme_cls.bg_darkest
-                if self.theme_cls.theme_style == "Light"
-                else (
-                    self.theme_cls.bg_light
-                    if not self.disabled
-                    else self.theme_cls.disabled_hint_text_color
-                )
-            )
-        )
-
-    def set_chip_text_color(self, instance_chip, active_value: int):
-        Animation(
-            color=(0, 0, 0, 1) if active_value else (0, 0, 0, 0.5), d=0.2
-        ).start(self.ids.label)
+    def child_selected(self, instance):
+        for child in self.ids.prefix_box.children:
+            if child.state == 'down':
+                print(child.text, end=' ')
+        for child in self.ids.strata_box.children:
+            if child.state == 'down':
+                print(child.text)
