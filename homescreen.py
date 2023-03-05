@@ -18,7 +18,7 @@ Builder.load_string('''
         orientation: 'vertical'
         
         MDTopAppBar:
-            title: 'Projects'
+            title: 'Project List'
             # size_hint: 1,0.1
             
         MDBoxLayout:
@@ -41,9 +41,9 @@ Builder.load_string('''
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             MDFillRoundFlatButton:
-                text: "StrataT"
+                text: "Spare"
                 # font_size: 10
-                on_release: app.root.current = "strata"
+                # on_release: app.root.current = "strata"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             

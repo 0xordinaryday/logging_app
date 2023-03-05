@@ -18,6 +18,7 @@ Builder.load_string('''
         orientation: "vertical"
         
         MDTopAppBar:
+            id: topbar
             title: 'Borehole Details'
             # size_hint: 1,0.1
             
@@ -26,10 +27,10 @@ Builder.load_string('''
             size_hint: 0.9,0.3
             pos_hint: {"center_x": .5}
             MDFillRoundFlatButton:
-                text: "Exit"
+                text: "Intervals"
                 # # font_size: 12
                 md_bg_color: "#fefbff"
-                on_release: app.stop()
+                on_release: app.root.current = "strata"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             MDFillRoundFlatButton:
@@ -244,9 +245,12 @@ class BoreholeDetailsScreen(MDScreen):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is
         complete."""
+
+        borehole_identifier = App.get_running_app().borehole_identifier
+        self.ids.topbar.title = borehole_identifier + ' Details'
         try:
             # print(App.get_running_app().data) # a variable to hold the project number
-            specific_borehole = db.get_specific_borehole_information(App.get_running_app().borehole_identifier)
+            specific_borehole = db.get_specific_borehole_information(borehole_identifier)
 
             if not specific_borehole:  # does not yet exist
                 self.ids.borehole_id.text = App.get_running_app().borehole_identifier

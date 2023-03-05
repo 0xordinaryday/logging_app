@@ -17,6 +17,7 @@ Builder.load_string('''
         orientation: 'vertical'
         
         MDTopAppBar:
+            id: topbar
             title: 'Project Boreholes'
             # size_hint: 1,0.1
             
@@ -66,8 +67,10 @@ class BoreholeListScreen(MDScreen):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is
         complete."""
+        project_identifier = App.get_running_app().project_identifier
+        self.ids.topbar.title = project_identifier + ' Boreholes'
         try:
-            borehole_list = db.get_borehole_list(App.get_running_app().project_identifier)
+            borehole_list = db.get_borehole_list(project_identifier)
             self.ids.borehole_list.clear_widgets()  # if there are any already
             for borehole in borehole_list:
                 self.ids.borehole_list.add_widget(

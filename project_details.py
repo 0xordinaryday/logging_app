@@ -20,6 +20,7 @@ Builder.load_string('''
         orientation: 'vertical'
         
         MDTopAppBar:
+            id: topbar
             title: 'Project Details'
             # size_hint: 1,0.1
             
@@ -123,9 +124,11 @@ class ProjectDetailsScreen(MDScreen):
         # print('This prints automatically when App launches')
         """Event fired when the screen is displayed: the entering animation is
         complete."""
+        project_identifier = App.get_running_app().project_identifier
+        self.ids.topbar.title = project_identifier + ' Details'
         try:
             # print(App.get_running_app().data) # a variable to hold the project number
-            specific_project = db.get_specific_project_information(App.get_running_app().project_identifier)
+            specific_project = db.get_specific_project_information(project_identifier)
             self.ids.project_number_id.text = specific_project[0]
             self.ids.client_id.text = specific_project[1]
             self.ids.location_id.text = specific_project[3]
