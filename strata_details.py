@@ -1,5 +1,6 @@
 from kivy.lang import Builder
 from kivy.uix.togglebutton import ToggleButton
+from kivymd.toast import toast
 from kivymd.uix.screen import MDScreen
 
 from db import Database
@@ -145,6 +146,16 @@ Builder.load_string('''
                     size_hint_y: '40dp'
                     spacing: "10dp"
                     # size_hint: 1.0,0.18
+                 
+                MDSeparator:   
+                
+                MDBoxLayout:
+                    id: plasticity_or_grainsize_box
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: '40dp'
+                    spacing: "10dp"
+                    # size_hint: 1.0,0.18
 
 
 ''')
@@ -153,6 +164,7 @@ Builder.load_string('''
 class StrataDetailsScreen(MDScreen):
     QUALIFIER = ''
     PRIMARY_NAME = ''
+    PRIMARY_CLASS = ''
     PREFIX = ''
     PRIMARY_PLASTICITY = ''
     PRIMARY_GRAINSIZE = ''
@@ -165,6 +177,11 @@ class StrataDetailsScreen(MDScreen):
         "SAND": ["Clayey", "Silty", "Gravelly"],
         "GRAVEL": ["Clayey", "Silty", "Sandy"]
     }
+    ALLOWABLE_PLASTICITY = {
+        "CLAY": ["High Plast.", "Medium Plast.", "Low Plast."],
+        "SILT": ["High Plast.", "Low Plast.", "Non-plastic"]
+    }
+    ALLOWABLE_GRAINSIZE = ["Fine", "Medium", "Coarse"]
 
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
@@ -184,8 +201,7 @@ class StrataDetailsScreen(MDScreen):
             for entry in primary_name:
                 toggle = ToggleButton(text=entry, group='major', pos_hint={'x':1, 'y':-0.5})
                 self.ids.strata_box.add_widget(toggle)
-            for child in self.ids.strata_box.children:
-                child.bind(on_release=self.strata_selected)
+                toggle.bind(on_release=self.strata_selected)
 
     def strata_selected(self, instance):
         is_strata_selected = False
@@ -199,12 +215,16 @@ class StrataDetailsScreen(MDScreen):
             self.enable_children(self.ids.prefix_box)
             prefixes = self.ALLOWABLE_PREFIXES[self.PRIMARY_NAME]
             self.ids.prefix_box.clear_widgets()
+            self.ids.plasticity_or_grainsize_box.clear_widgets()
             for entry in prefixes:
                 toggle = ToggleButton(text=entry, pos_hint={'x':1, 'y':-0.5})
                 self.ids.prefix_box.add_widget(toggle)
-                for child in self.ids.prefix_box.children:
-                    child.bind(on_release=self.prefix_selected)
+                toggle.bind(on_release=self.prefix_selected)
             self.ids.working_name.text = self.PRIMARY_NAME
+            if self.PRIMARY_NAME in ['CLAY', 'SILT']:
+                self.PRIMARY_CLASS = 'FINE'
+            else:
+                self.PRIMARY_CLASS = 'COARSE'
         else:
             self.disable_children(self.ids.prefix_box)
 
@@ -215,7 +235,98 @@ class StrataDetailsScreen(MDScreen):
             if child.state == 'down':
                 self.PREFIX = self.PREFIX + child.text + ' '
 
+        if self.PRIMARY_CLASS == 'FINE':
+            plasticity = self.ALLOWABLE_PLASTICITY[self.PRIMARY_NAME]
+            self.ids.plasticity_or_grainsize_box.clear_widgets()
+            group = None  # what a kludge
+            if self.PRIMARY_NAME == 'SILT':
+                group = 'silt'
+            for entry in plasticity:
+                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group=group)
+                self.ids.plasticity_or_grainsize_box.add_widget(toggle)
+                toggle.bind(on_release=self.plasticity_selected)
+        else:
+            grainsize = self.ALLOWABLE_GRAINSIZE
+            for entry in grainsize:
+                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
+                self.ids.plasticity_or_grainsize_box.add_widget(toggle)
+                toggle.bind(on_release=self.grainsize_selected)
+
         self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME
+
+    def plasticity_selected(self, instance):
+        self.PRIMARY_PLASTICITY = ''
+        high_selected = False
+        med_selected = False
+        low_selected = False
+        non_selected = False
+
+        for child in self.ids.plasticity_or_grainsize_box.children:
+            if child.text == 'High Plast.' and child.state == 'down':
+                high_selected = True
+            if child.text == 'Medium Plast.' and child.state == 'down':
+                med_selected = True
+            if child.text == 'Low Plast.' and child.state == 'down':
+                low_selected = True
+            if child.text == 'Non-plastic' and child.state == 'down':
+                non_selected = True
+
+        if low_selected and high_selected:
+            for child in self.ids.plasticity_or_grainsize_box.children:
+                child.state = 'normal'
+            toast("Can't be Low AND High")
+            high_selected = False
+            med_selected = False
+            low_selected = False
+            non_selected = False
+
+        if low_selected and med_selected and not high_selected:
+            self.PRIMARY_PLASTICITY = '; low to medium plasticity'
+        if med_selected and high_selected and not low_selected:
+            self.PRIMARY_PLASTICITY = '; medium to high plasticity'
+        if low_selected and not med_selected and not high_selected:
+            self.PRIMARY_PLASTICITY = '; low plasticity'
+        if med_selected and not high_selected and not low_selected:
+            self.PRIMARY_PLASTICITY = '; medium plasticity'
+        if high_selected and not med_selected and not low_selected:
+            self.PRIMARY_PLASTICITY = '; high plasticity'
+        if non_selected:
+            self.PRIMARY_PLASTICITY = '; non-plastic'
+
+        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY
+
+    def grainsize_selected(self, instance):
+        self.PRIMARY_GRAINSIZE = ''
+        coarse_selected = False
+        med_selected = False
+        fine_selected = False
+
+        for child in self.ids.plasticity_or_grainsize_box.children:
+            if child.text == 'Coarse' and child.state == 'down':
+                coarse_selected = True
+            if child.text == 'Medium' and child.state == 'down':
+                med_selected = True
+            if child.text == 'Fine' and child.state == 'down':
+                fine_selected = True
+
+        if fine_selected and not med_selected and not coarse_selected:
+            self.PRIMARY_GRAINSIZE = '; fine grained'
+        elif fine_selected and med_selected and not coarse_selected:
+            self.PRIMARY_GRAINSIZE = '; fine to medium grained'
+        elif fine_selected and med_selected and coarse_selected:
+            self.PRIMARY_GRAINSIZE = '; fine to coarse grained'
+        elif fine_selected and not med_selected and coarse_selected:
+            self.PRIMARY_GRAINSIZE = '; fine and coarse grained (gap graded)'
+        elif med_selected and not coarse_selected and not fine_selected:
+            self.PRIMARY_GRAINSIZE = '; medium grained'
+        elif med_selected and coarse_selected and not fine_selected:
+            self.PRIMARY_GRAINSIZE = '; medium to coarse grained'
+        elif coarse_selected and not med_selected and not fine_selected:
+            self.PRIMARY_GRAINSIZE = '; coarse grained'
+        else:
+            self.PRIMARY_GRAINSIZE = ' undetermined grainsize'
+
+        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_GRAINSIZE
 
     def enable_children(self, widget):
         for child in widget.children:
