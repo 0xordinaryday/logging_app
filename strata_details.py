@@ -172,10 +172,10 @@ class StrataDetailsScreen(MDScreen):
     SECONDARY_NAME = ''
     SECONDARY_CHARS = ''
     ALLOWABLE_PREFIXES = {
-        "CLAY": ["Silty", "Sandy", "Gravelly"],
-        "SILT": ["Clayey", "Sandy", "Gravelly"],
-        "SAND": ["Clayey", "Silty", "Gravelly"],
-        "GRAVEL": ["Clayey", "Silty", "Sandy"]
+        "CLAY": ["Silty", "Sandy", "Gravelly", "No Prefix"],
+        "SILT": ["Clayey", "Sandy", "Gravelly", "No Prefix"],
+        "SAND": ["Clayey", "Silty", "Gravelly", "No Prefix"],
+        "GRAVEL": ["Clayey", "Silty", "Sandy", "No Prefix"]
     }
     ALLOWABLE_PLASTICITY = {
         "CLAY": ["High Plast.", "Medium Plast.", "Low Plast."],
@@ -205,6 +205,8 @@ class StrataDetailsScreen(MDScreen):
 
     def strata_selected(self, instance):
         is_strata_selected = False
+        self.ids.prefix_box.clear_widgets()
+        self.ids.plasticity_or_grainsize_box.clear_widgets()
 
         for child in self.ids.strata_box.children:
             if child.state == 'down':
@@ -214,8 +216,6 @@ class StrataDetailsScreen(MDScreen):
         if is_strata_selected:
             self.enable_children(self.ids.prefix_box)
             prefixes = self.ALLOWABLE_PREFIXES[self.PRIMARY_NAME]
-            self.ids.prefix_box.clear_widgets()
-            self.ids.plasticity_or_grainsize_box.clear_widgets()
             for entry in prefixes:
                 toggle = ToggleButton(text=entry, pos_hint={'x':1, 'y':-0.5})
                 self.ids.prefix_box.add_widget(toggle)
@@ -229,15 +229,23 @@ class StrataDetailsScreen(MDScreen):
             self.disable_children(self.ids.prefix_box)
 
     def prefix_selected(self, instance):
-        self.PREFIX = ''  # set to empty string if previously selected
+        has_prefix = True
+        self.ids.plasticity_or_grainsize_box.clear_widgets()
+        self.PREFIX = ''
 
-        for child in self.ids.prefix_box.children:
-            if child.state == 'down':
-                self.PREFIX = self.PREFIX + child.text + ' '
+        if instance.text == 'No Prefix' and instance.state == 'down':
+            has_prefix = False
+            for child in self.ids.prefix_box.children:
+                if child.text != 'No Prefix':
+                    child.state = 'normal'
+
+        if has_prefix:
+            for child in self.ids.prefix_box.children:
+                if child.state == 'down' and child.text != 'No Prefix':
+                 self.PREFIX = self.PREFIX + child.text + ' '
 
         if self.PRIMARY_CLASS == 'FINE':
             plasticity = self.ALLOWABLE_PLASTICITY[self.PRIMARY_NAME]
-            self.ids.plasticity_or_grainsize_box.clear_widgets()
             group = None  # what a kludge
             if self.PRIMARY_NAME == 'SILT':
                 group = 'silt'
