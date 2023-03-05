@@ -47,6 +47,15 @@ Builder.load_string('''
             
         MDSeparator:
         
+        MDLabel:
+            id: working_name
+            size_hint: 1, 0.15
+            font_size: '14sp'
+            # bold: True
+            text: ''
+            padding: [10,0]
+            # pos_hint: {"x": 1, "y": -0.5}
+        
         MDScrollView:
             do_scroll_x: False
             do_scroll_y: True    
@@ -195,11 +204,18 @@ class StrataDetailsScreen(MDScreen):
                 self.ids.prefix_box.add_widget(toggle)
                 for child in self.ids.prefix_box.children:
                     child.bind(on_release=self.prefix_selected)
+            self.ids.working_name.text = self.PRIMARY_NAME
         else:
             self.disable_children(self.ids.prefix_box)
 
     def prefix_selected(self, instance):
-        pass
+        self.PREFIX = ''  # set to empty string if previously selected
+
+        for child in self.ids.prefix_box.children:
+            if child.state == 'down':
+                self.PREFIX = self.PREFIX + child.text + ' '
+
+        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME
 
     def enable_children(self, widget):
         for child in widget.children:
