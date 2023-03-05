@@ -156,7 +156,46 @@ Builder.load_string('''
                     size_hint_y: '40dp'
                     spacing: "10dp"
                     # size_hint: 1.0,0.18
-
+                    
+                MDSeparator:
+                
+                MDBoxLayout:
+                    id: colour_modifier_box
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: '40dp'
+                    spacing: "10dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDSeparator:
+                
+                MDBoxLayout:
+                    id: colour_box_row1
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: '40dp'
+                    spacing: "10dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDSeparator:
+                
+                MDBoxLayout:
+                    id: colour_box_row2
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: '40dp'
+                    spacing: "10dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDSeparator:
+                
+                MDBoxLayout:
+                    id: colour_box_row3
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: '40dp'
+                    spacing: "10dp"
+                    # size_hint: 1.0,0.18
 
 ''')
 
@@ -182,6 +221,10 @@ class StrataDetailsScreen(MDScreen):
         "SILT": ["High Plast.", "Low Plast.", "Non-plastic"]
     }
     ALLOWABLE_GRAINSIZE = ["Fine", "Medium", "Coarse"]
+    ALLOWABLE_COLOURS = ["Brown", "Red", "Red-brown", "Orange", "Orange-brown", "Yellow", "Yellow-brown", "Grey",
+                         "Black", "White", "Green", "Purple"]
+    ALLOWABLE_COLOUR_ACTIONS = ["Done", "Reset", "and", "mottled"]
+    ALLOWABLE_COLOUR_MODIFIERS = ["Very Dark", "Dark", "Light"]
 
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
@@ -262,6 +305,8 @@ class StrataDetailsScreen(MDScreen):
 
         self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME
 
+        self.populate_colours()
+
     def plasticity_selected(self, instance):
         self.PRIMARY_PLASTICITY = ''
         high_selected = False
@@ -335,6 +380,31 @@ class StrataDetailsScreen(MDScreen):
             self.PRIMARY_GRAINSIZE = ' undetermined grainsize'
 
         self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_GRAINSIZE
+
+    def populate_colours(self, *args):
+        colours = self.ALLOWABLE_COLOURS
+        colour_modifiers = self.ALLOWABLE_COLOUR_MODIFIERS
+
+        for modifier in colour_modifiers:
+            toggle = ToggleButton(text=modifier, pos_hint={'x': 1, 'y': -0.5}, group='modifier')
+            self.ids.colour_modifier_box.add_widget(toggle)
+            toggle.bind(on_release=self.colour_selected)
+
+        for colour in colours[0:3]:
+            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour')
+            self.ids.colour_box_row1.add_widget(toggle)
+            toggle.bind(on_release=self.colour_selected)
+        for colour in colours[4:7]:
+            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour')
+            self.ids.colour_box_row2.add_widget(toggle)
+            toggle.bind(on_release=self.colour_selected)
+        for colour in colours[8:11]:
+            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour')
+            self.ids.colour_box_row3.add_widget(toggle)
+            toggle.bind(on_release=self.colour_selected)
+
+    def colour_selected(self, instance):
+        pass
 
     def enable_children(self, widget):
         for child in widget.children:
