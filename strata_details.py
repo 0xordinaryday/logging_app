@@ -60,16 +60,14 @@ Builder.load_string('''
         MDScrollView:
             do_scroll_x: False
             do_scroll_y: True    
-            MDGridLayout:
-                cols: 1
-                size_hint_y: None
+            MDBoxLayout:
                 height: self.minimum_height
-                row_force_default: True
-                row_default_height: "40dp"
+                orientation: 'vertical'
+                size_hint_y: None
                 
                 MDBoxLayout:
                     height: self.minimum_height
-                    size_hint_y: '40dp'
+                    size_hint_y: None
                     id: depths
                     
                     MDLabel:
@@ -77,7 +75,7 @@ Builder.load_string('''
                         bold: True
                         text: 'From'
                         padding: [10,0]
-                        pos_hint: {"x": 1, "y": -0.5}
+                        # pos_hint: {"x": 1, "y": -0.5}
                         
                     MDTextField:
                         id: depth_from_id
@@ -86,15 +84,14 @@ Builder.load_string('''
                         # size_hint: 1,0.1
                         on_text: 
                         padding: [10,0]
-                        pos_hint: {"x": 1, "y": -0.5}
-                        
+                        # pos_hint: {"x": 1, "y": -0.5}
                             
                     MDLabel:
                         font_size: '16sp'
                         bold: True
                         text: 'To'
                         padding: [10,0]
-                        pos_hint: {"x": 1, "y": -0.5}
+                        # pos_hint: {"x": 1, "y": -0.5}
                         
                     MDTextField:
                         id: depth_to_id
@@ -103,98 +100,107 @@ Builder.load_string('''
                         padding: [10,0]
                         # size_hint: 1,0.1
                         on_text:
-                        pos_hint: {"x": 1, "y": -0.5}
-                    
-                MDSeparator:    
-                    
+                        # pos_hint: {"x": 1, "y": -0.5}
+                   
                 MDBoxLayout:
                     # id: strata_box
                     orientation: 'horizontal'
                     spacing: "10dp"
-                    height: self.minimum_height
-                    size_hint_y: '40dp'
+                    height: "40dp"
+                    size_hint_y: None
                     # size_hint: 1,0.2
                     ToggleButton:
                         id: toggle_rock
                         text: 'Rock' 
                         group: 'material'
                         on_release: root.insert_major(self)
-                        pos_hint: {"x": 1, "y": -0.5}
+                        # pos_hint: {"x": 1, "y": -0.5}
                     ToggleButton:
                         id: toggle_soil
                         text: 'Soil'
                         group: 'material'
-                        pos_hint: {"x": 1, "y": -0.5}
+                        # pos_hint: {"x": 1, "y": -0.5}
                         on_release: root.insert_major(self)
-                        
-                MDSeparator:
-                        
+                      
                 MDBoxLayout:
                     id: strata_box
                     orientation: 'horizontal'
-                    spacing: "5dp"
-                    height: self.minimum_height
-                    # size_hint_y: '40dp'
-                    size_hint: 1,0.2
-                    
-                MDSeparator:
-                    
+                    spacing: "10dp"
+                    height: "40dp"
+                    size_hint_y: None
+                    # size_hint: 1,0.2
+
                 MDBoxLayout:
                     id: prefix_box
                     orientation: 'horizontal'
                     height: self.minimum_height
-                    size_hint_y: '40dp'
+                    size_hint_y: None
                     spacing: "10dp"
+                    height: "40dp"
                     # size_hint: 1.0,0.18
-                 
-                MDSeparator:   
-                
+                    
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    height: "15dp"
+                    size_hint_y: None
+
                 MDBoxLayout:
                     id: plasticity_or_grainsize_box
                     orientation: 'horizontal'
                     height: self.minimum_height
-                    size_hint_y: '40dp'
+                    size_hint_y: None
                     spacing: "10dp"
+                    height: "40dp"
                     # size_hint: 1.0,0.18
                     
-                MDSeparator:
-                
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    height: "15dp"
+                    size_hint_y: None
+
                 MDBoxLayout:
                     id: colour_modifier_box
                     orientation: 'horizontal'
                     height: self.minimum_height
-                    size_hint_y: '40dp'
-                    spacing: "10dp"
+                    size_hint_y: None
+                    spacing: "15dp"
+                    height: "40dp"
                     # size_hint: 1.0,0.18
-                    
-                MDSeparator:
-                
+
                 MDBoxLayout:
                     id: colour_box_row1
                     orientation: 'horizontal'
                     height: self.minimum_height
-                    size_hint_y: '40dp'
-                    spacing: "10dp"
+                    size_hint_y: None
+                    spacing: "15dp"
+                    height: "40dp"
                     # size_hint: 1.0,0.18
-                    
-                MDSeparator:
-                
+ 
                 MDBoxLayout:
                     id: colour_box_row2
                     orientation: 'horizontal'
                     height: self.minimum_height
-                    size_hint_y: '40dp'
-                    spacing: "10dp"
+                    size_hint_y: None
+                    spacing: "15dp"
+                    height: "40dp"
                     # size_hint: 1.0,0.18
-                    
-                MDSeparator:
                 
                 MDBoxLayout:
                     id: colour_box_row3
                     orientation: 'horizontal'
                     height: self.minimum_height
-                    size_hint_y: '40dp'
+                    size_hint_y: None
+                    spacing: "15dp"
+                    height: "40dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDBoxLayout:
+                    id: colour_action_box
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: None
                     spacing: "10dp"
+                    height: "40dp"
                     # size_hint: 1.0,0.18
 
 ''')
@@ -221,8 +227,20 @@ class StrataDetailsScreen(MDScreen):
         "SILT": ["High Plast.", "Low Plast.", "Non-plastic"]
     }
     ALLOWABLE_GRAINSIZE = ["Fine", "Medium", "Coarse"]
-    ALLOWABLE_COLOURS = ["Brown", "Red", "Red-brown", "Orange", "Orange-brown", "Yellow", "Yellow-brown", "Grey",
-                         "Black", "White", "Green", "Purple"]
+    ALLOWABLE_COLOURS = {
+        "Brown": "saddlebrown",
+        "Red": "firebrick",
+        "Red-brown": "maroon",
+        "Orange": "darkorange",
+        "Orange-brown": "sandybrown",
+        "Yellow": "khaki",
+        "Yellow-brown": "goldenrod",
+        "Grey": "slategrey",
+        "Black": "black",
+        "White": "ivory",
+        "Green": "darkolivegreen",
+        "Blue": "darkslateblue"
+    }
     ALLOWABLE_COLOUR_ACTIONS = ["Done", "Reset", "and", "mottled"]
     ALLOWABLE_COLOUR_MODIFIERS = ["Very Dark", "Dark", "Light"]
 
@@ -242,7 +260,7 @@ class StrataDetailsScreen(MDScreen):
         if instance.text == 'Soil':
             primary_name = ['CLAY', 'SILT', 'SAND', 'GRAVEL']
             for entry in primary_name:
-                toggle = ToggleButton(text=entry, group='major', pos_hint={'x':1, 'y':-0.5})
+                toggle = ToggleButton(text=entry, group='major', pos_hint={'x': 1, 'y': -0.5})
                 self.ids.strata_box.add_widget(toggle)
                 toggle.bind(on_release=self.strata_selected)
 
@@ -260,7 +278,7 @@ class StrataDetailsScreen(MDScreen):
             self.enable_children(self.ids.prefix_box)
             prefixes = self.ALLOWABLE_PREFIXES[self.PRIMARY_NAME]
             for entry in prefixes:
-                toggle = ToggleButton(text=entry, pos_hint={'x':1, 'y':-0.5})
+                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
                 self.ids.prefix_box.add_widget(toggle)
                 toggle.bind(on_release=self.prefix_selected)
             self.ids.working_name.text = self.PRIMARY_NAME
@@ -285,7 +303,7 @@ class StrataDetailsScreen(MDScreen):
         if has_prefix:
             for child in self.ids.prefix_box.children:
                 if child.state == 'down' and child.text != 'No Prefix':
-                 self.PREFIX = self.PREFIX + child.text + ' '
+                    self.PREFIX = self.PREFIX + child.text + ' '
 
         if self.PRIMARY_CLASS == 'FINE':
             plasticity = self.ALLOWABLE_PLASTICITY[self.PRIMARY_NAME]
@@ -384,26 +402,43 @@ class StrataDetailsScreen(MDScreen):
     def populate_colours(self, *args):
         colours = self.ALLOWABLE_COLOURS
         colour_modifiers = self.ALLOWABLE_COLOUR_MODIFIERS
+        colour_actions = self.ALLOWABLE_COLOUR_ACTIONS
+
+        self.ids.colour_modifier_box.clear_widgets()
+        self.ids.colour_box_row1.clear_widgets()
+        self.ids.colour_box_row2.clear_widgets()
+        self.ids.colour_box_row3.clear_widgets()
+        self.ids.colour_action_box.clear_widgets()
 
         for modifier in colour_modifiers:
             toggle = ToggleButton(text=modifier, pos_hint={'x': 1, 'y': -0.5}, group='modifier')
             self.ids.colour_modifier_box.add_widget(toggle)
             toggle.bind(on_release=self.colour_selected)
 
-        for colour in colours[0:3]:
-            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour')
+        for colour in [*colours][0:4]:
+            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
+                                  background_color=colours[colour], background_normal="")
             self.ids.colour_box_row1.add_widget(toggle)
             toggle.bind(on_release=self.colour_selected)
-        for colour in colours[4:7]:
-            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour')
+        for colour in [*colours][4:8]:
+            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
+                                  background_color=colours[colour], background_normal="")
             self.ids.colour_box_row2.add_widget(toggle)
             toggle.bind(on_release=self.colour_selected)
-        for colour in colours[8:11]:
-            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour')
+        for colour in [*colours][8:12]:
+            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
+                                  background_color=colours[colour], background_normal="")
             self.ids.colour_box_row3.add_widget(toggle)
             toggle.bind(on_release=self.colour_selected)
+        for colour in colour_actions:
+            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='action')
+            self.ids.colour_action_box.add_widget(toggle)
+            toggle.bind(on_release=self.colour_action_selected)
 
     def colour_selected(self, instance):
+        pass
+
+    def colour_action_selected(self, *args):
         pass
 
     def enable_children(self, widget):

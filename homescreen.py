@@ -43,7 +43,7 @@ Builder.load_string('''
             MDFillRoundFlatButton:
                 text: "Spare"
                 # font_size: 10
-                # on_release: app.root.current = "strata"
+                # on_release: app.root.current = "strata_details"
                 size_hint: 0.25, 0.3
                 pos_hint: {"center_x": .5, "center_y": .5}
             
