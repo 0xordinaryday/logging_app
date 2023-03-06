@@ -1,7 +1,11 @@
 from kivy.lang import Builder
+from kivy.properties import ColorProperty
 from kivy.uix.togglebutton import ToggleButton
 from kivymd.toast import toast
+from kivymd.uix.chip import MDChip
+from kivymd.uix.list import ILeftBodyTouch, OneLineAvatarIconListItem
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.selectioncontrol import MDCheckbox
 
 from db import Database
 
@@ -166,33 +170,22 @@ Builder.load_string('''
                     spacing: "15dp"
                     height: "40dp"
                     # size_hint: 1.0,0.18
-
+                    
                 MDBoxLayout:
-                    id: colour_box_row1
                     orientation: 'horizontal'
                     height: self.minimum_height
                     size_hint_y: None
-                    spacing: "15dp"
-                    height: "40dp"
-                    # size_hint: 1.0,0.18
+                    height: "10dp"
+
+                MDList:
+                    id: colour_list
+                    font_size: "14sp"
  
                 MDBoxLayout:
-                    id: colour_box_row2
                     orientation: 'horizontal'
                     height: self.minimum_height
                     size_hint_y: None
-                    spacing: "15dp"
-                    height: "40dp"
-                    # size_hint: 1.0,0.18
-                
-                MDBoxLayout:
-                    id: colour_box_row3
-                    orientation: 'horizontal'
-                    height: self.minimum_height
-                    size_hint_y: None
-                    spacing: "15dp"
-                    height: "40dp"
-                    # size_hint: 1.0,0.18
+                    height: "10dp"
                     
                 MDBoxLayout:
                     id: colour_action_box
@@ -202,6 +195,29 @@ Builder.load_string('''
                     spacing: "10dp"
                     height: "40dp"
                     # size_hint: 1.0,0.18
+                    
+                MDBoxLayout:
+                    id: terminal_spacer
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: None
+                    height: "40dp"
+                    
+<ColourItemWithCheckbox>:
+    id: colour_listitem
+    markup: True
+    custom_icon_colour: self.custom_icon_colour
+
+    LeftCheckbox:
+        id: check
+        on_release: 
+            root.mark(check, colour_listitem)
+
+    IconRightWidget:
+        icon: 'square-rounded' 
+        theme_text_color: "Custom"
+        text_color: root.custom_icon_colour
+        icon_size: "40dp"
 
 ''')
 
@@ -405,9 +421,9 @@ class StrataDetailsScreen(MDScreen):
         colour_actions = self.ALLOWABLE_COLOUR_ACTIONS
 
         self.ids.colour_modifier_box.clear_widgets()
-        self.ids.colour_box_row1.clear_widgets()
-        self.ids.colour_box_row2.clear_widgets()
-        self.ids.colour_box_row3.clear_widgets()
+        self.ids.colour_list.clear_widgets()
+        # self.ids.colour_box_row2.clear_widgets()
+        # self.ids.colour_box_row3.clear_widgets()
         self.ids.colour_action_box.clear_widgets()
 
         for modifier in colour_modifiers:
@@ -415,25 +431,30 @@ class StrataDetailsScreen(MDScreen):
             self.ids.colour_modifier_box.add_widget(toggle)
             toggle.bind(on_release=self.colour_selected)
 
-        for colour in [*colours][0:4]:
-            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
-                                  background_color=colours[colour], background_normal="")
-            self.ids.colour_box_row1.add_widget(toggle)
-            toggle.bind(on_release=self.colour_selected)
-        for colour in [*colours][4:8]:
-            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
-                                  background_color=colours[colour], background_normal="")
-            self.ids.colour_box_row2.add_widget(toggle)
-            toggle.bind(on_release=self.colour_selected)
-        for colour in [*colours][8:12]:
-            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
-                                  background_color=colours[colour], background_normal="")
-            self.ids.colour_box_row3.add_widget(toggle)
-            toggle.bind(on_release=self.colour_selected)
-        for colour in colour_actions:
-            toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='action')
-            self.ids.colour_action_box.add_widget(toggle)
-            toggle.bind(on_release=self.colour_action_selected)
+        for colour in [*colours]:
+            listitem = ColourItemWithCheckbox(text=colour, font_style='Body2', custom_icon_colour=colours[colour])
+            self.ids.colour_list.add_widget(listitem)
+            listitem.bind(on_release=self.colour_selected)
+
+        # for colour in [*colours]:
+        #     chip = MDChip(text=colour, md_bg_color=colours[colour])  # color=colours[colour]
+        #     self.ids.colour_chips.add_widget(chip)
+        #     chip.bind(on_release=self.colour_selected)
+        # for colour in [*colours]:
+        #     toggle = ToggleButton(text=colour, group='colour', size_hint=(None, None), size=["250dp", "40dp"],
+        #                           background_color=colours[colour], background_normal="",
+        #                           pos_hint={'x': 0.15, 'y': 0.5})
+        #     self.ids.colour_chips.add_widget(toggle)
+        #     toggle.bind(on_release=self.colour_selected)
+        # for colour in [*colours][8:12]:
+        #     toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
+        #                           background_color=colours[colour], background_normal="")
+        #     self.ids.colour_box_row3.add_widget(toggle)
+        #     toggle.bind(on_release=self.colour_selected)
+        # for colour in colour_actions:
+        #     toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='action')
+        #     self.ids.colour_action_box.add_widget(toggle)
+        #     toggle.bind(on_release=self.colour_action_selected)
 
     def colour_selected(self, instance):
         pass
@@ -449,3 +470,26 @@ class StrataDetailsScreen(MDScreen):
         for child in widget.children:
             child.state = 'normal'  # i.e., unselected
             child.disabled = True
+
+
+class ColourItemWithCheckbox(OneLineAvatarIconListItem):
+    """Custom list item"""
+    custom_icon_colour = ColorProperty()
+    pass
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def mark(self, check, colour_listitem):
+        pass
+        # """mark the task as complete or incomplete"""
+        # if check.active:
+        #     the_project.text = '[s]' + the_project.text + '[/s]'
+        # elif '[s]' in the_project.text:
+        #     the_project.text = the_project.text[3:-4]
+        # else:
+        #     pass
+
+
+class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
+    """Custom left container"""

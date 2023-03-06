@@ -124,5 +124,6 @@ class ListItemWithCheckbox(OneLineAvatarIconListItem):
         else:
             toast('Check the box if you want to delete the project')
 
+
 class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
     """Custom left container"""
