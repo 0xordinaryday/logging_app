@@ -1,8 +1,8 @@
+import kivy
 from kivy.lang import Builder
-from kivy.properties import ColorProperty
+from kivy.properties import ColorProperty, StringProperty, ListProperty
 from kivy.uix.togglebutton import ToggleButton
 from kivymd.toast import toast
-from kivymd.uix.chip import MDChip
 from kivymd.uix.list import ILeftBodyTouch, OneLineAvatarIconListItem
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.selectioncontrol import MDCheckbox
@@ -13,6 +13,7 @@ from db import Database
 db = Database()
 
 Builder.load_string('''
+
 <StrataDetailsScreen>:
     id: strata_details_id
     name: "strata_details"
@@ -210,8 +211,7 @@ Builder.load_string('''
 
     LeftCheckbox:
         id: check
-        on_release: 
-            root.mark(check, colour_listitem)
+        on_release: root.parent.parent.parent.parent.parent.mark(check, colour_listitem)
 
     IconRightWidget:
         icon: 'square-rounded' 
@@ -229,7 +229,8 @@ class StrataDetailsScreen(MDScreen):
     PREFIX = ''
     PRIMARY_PLASTICITY = ''
     PRIMARY_GRAINSIZE = ''
-    COLOUR = ''
+    COLOURS = []
+    COLOUR_STRING = ''
     SECONDARY_NAME = ''
     SECONDARY_CHARS = ''
     ALLOWABLE_PREFIXES = {
@@ -284,6 +285,8 @@ class StrataDetailsScreen(MDScreen):
         is_strata_selected = False
         self.ids.prefix_box.clear_widgets()
         self.ids.plasticity_or_grainsize_box.clear_widgets()
+        self.COLOUR_STRING = ''
+        self.COLOURS = []
 
         for child in self.ids.strata_box.children:
             if child.state == 'down':
@@ -343,6 +346,7 @@ class StrataDetailsScreen(MDScreen):
 
     def plasticity_selected(self, instance):
         self.PRIMARY_PLASTICITY = ''
+        self.PRIMARY_GRAINSIZE = ''
         high_selected = False
         med_selected = False
         low_selected = False
@@ -384,6 +388,7 @@ class StrataDetailsScreen(MDScreen):
 
     def grainsize_selected(self, instance):
         self.PRIMARY_GRAINSIZE = ''
+        self.PRIMARY_PLASTICITY = ''
         coarse_selected = False
         med_selected = False
         fine_selected = False
@@ -422,8 +427,6 @@ class StrataDetailsScreen(MDScreen):
 
         self.ids.colour_modifier_box.clear_widgets()
         self.ids.colour_list.clear_widgets()
-        # self.ids.colour_box_row2.clear_widgets()
-        # self.ids.colour_box_row3.clear_widgets()
         self.ids.colour_action_box.clear_widgets()
 
         for modifier in colour_modifiers:
@@ -436,28 +439,25 @@ class StrataDetailsScreen(MDScreen):
             self.ids.colour_list.add_widget(listitem)
             listitem.bind(on_release=self.colour_selected)
 
-        # for colour in [*colours]:
-        #     chip = MDChip(text=colour, md_bg_color=colours[colour])  # color=colours[colour]
-        #     self.ids.colour_chips.add_widget(chip)
-        #     chip.bind(on_release=self.colour_selected)
-        # for colour in [*colours]:
-        #     toggle = ToggleButton(text=colour, group='colour', size_hint=(None, None), size=["250dp", "40dp"],
-        #                           background_color=colours[colour], background_normal="",
-        #                           pos_hint={'x': 0.15, 'y': 0.5})
-        #     self.ids.colour_chips.add_widget(toggle)
-        #     toggle.bind(on_release=self.colour_selected)
-        # for colour in [*colours][8:12]:
-        #     toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='colour',
-        #                           background_color=colours[colour], background_normal="")
-        #     self.ids.colour_box_row3.add_widget(toggle)
-        #     toggle.bind(on_release=self.colour_selected)
-        # for colour in colour_actions:
-        #     toggle = ToggleButton(text=colour, pos_hint={'x': 1, 'y': -0.5}, group='action')
-        #     self.ids.colour_action_box.add_widget(toggle)
-        #     toggle.bind(on_release=self.colour_action_selected)
-
     def colour_selected(self, instance):
         pass
+
+    def mark(self, check, instance):
+        if check.active:
+            self.COLOURS.append(instance.text.lower())
+        else:
+            self.COLOURS.remove(instance.text.lower())
+        self.display_colours()
+
+    def display_colours(self):
+        if not len(self.COLOURS):
+            self.COLOUR_STRING = ''
+        elif (len(self.COLOURS)) == 1:
+            self.COLOUR_STRING = '; ' + self.COLOURS[0]
+        else:
+            self.COLOUR_STRING = '; ' + '{} and {}'.format(', '.join(self.COLOURS[:-1]), self.COLOURS[-1])
+
+        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
 
     def colour_action_selected(self, *args):
         pass
@@ -475,20 +475,16 @@ class StrataDetailsScreen(MDScreen):
 class ColourItemWithCheckbox(OneLineAvatarIconListItem):
     """Custom list item"""
     custom_icon_colour = ColorProperty()
-    pass
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def mark(self, check, colour_listitem):
-        pass
-        # """mark the task as complete or incomplete"""
-        # if check.active:
-        #     the_project.text = '[s]' + the_project.text + '[/s]'
-        # elif '[s]' in the_project.text:
-        #     the_project.text = the_project.text[3:-4]
-        # else:
-        #     pass
+    def mark(self, check, instance):
+        if check.active:
+            print('appending ' + instance.text.lower())
+            self.colour_list.append(instance.text.lower())
+            for element in self.colour_list:
+                print(element)
 
 
 class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
