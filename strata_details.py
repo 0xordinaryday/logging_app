@@ -1,6 +1,5 @@
-import kivy
 from kivy.lang import Builder
-from kivy.properties import ColorProperty, StringProperty, ListProperty
+from kivy.properties import ColorProperty
 from kivy.uix.togglebutton import ToggleButton
 from kivymd.toast import toast
 from kivymd.uix.list import ILeftBodyTouch, OneLineAvatarIconListItem
@@ -163,21 +162,6 @@ Builder.load_string('''
                     height: "15dp"
                     size_hint_y: None
 
-                MDBoxLayout:
-                    id: colour_modifier_box
-                    orientation: 'horizontal'
-                    height: self.minimum_height
-                    size_hint_y: None
-                    spacing: "15dp"
-                    height: "40dp"
-                    # size_hint: 1.0,0.18
-                    
-                MDBoxLayout:
-                    orientation: 'horizontal'
-                    height: self.minimum_height
-                    size_hint_y: None
-                    height: "10dp"
-
                 MDList:
                     id: colour_list
                     font_size: "14sp"
@@ -188,14 +172,14 @@ Builder.load_string('''
                     size_hint_y: None
                     height: "10dp"
                     
-                MDBoxLayout:
-                    id: colour_action_box
-                    orientation: 'horizontal'
-                    height: self.minimum_height
-                    size_hint_y: None
-                    spacing: "10dp"
-                    height: "40dp"
-                    # size_hint: 1.0,0.18
+                # MDBoxLayout:
+                #     id: colour_action_box
+                #     orientation: 'horizontal'
+                #     height: self.minimum_height
+                #     size_hint_y: None
+                #     spacing: "10dp"
+                #     height: "40dp"
+                #     # size_hint: 1.0,0.18
                     
                 MDBoxLayout:
                     id: terminal_spacer
@@ -245,21 +229,24 @@ class StrataDetailsScreen(MDScreen):
     }
     ALLOWABLE_GRAINSIZE = ["Fine", "Medium", "Coarse"]
     ALLOWABLE_COLOURS = {
-        "Brown": "saddlebrown",
+        "Brown": "peru",
+        "Dark Brown": "saddlebrown",
         "Red": "firebrick",
         "Red-brown": "maroon",
         "Orange": "darkorange",
         "Orange-brown": "sandybrown",
         "Yellow": "khaki",
         "Yellow-brown": "goldenrod",
-        "Grey": "slategrey",
+        "Grey": "lightslategrey",
+        "Dark Grey": "dimgrey",
         "Black": "black",
         "White": "ivory",
         "Green": "darkolivegreen",
         "Blue": "darkslateblue"
     }
-    ALLOWABLE_COLOUR_ACTIONS = ["Done", "Reset", "and", "mottled"]
-    ALLOWABLE_COLOUR_MODIFIERS = ["Very Dark", "Dark", "Light"]
+
+    # ALLOWABLE_COLOUR_ACTIONS = ["Done", "Reset", "and", "mottled"]
+    # ALLOWABLE_COLOUR_MODIFIERS = ["Very Dark", "Dark", "Light"]
 
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
@@ -422,25 +409,11 @@ class StrataDetailsScreen(MDScreen):
 
     def populate_colours(self, *args):
         colours = self.ALLOWABLE_COLOURS
-        colour_modifiers = self.ALLOWABLE_COLOUR_MODIFIERS
-        colour_actions = self.ALLOWABLE_COLOUR_ACTIONS
-
-        self.ids.colour_modifier_box.clear_widgets()
         self.ids.colour_list.clear_widgets()
-        self.ids.colour_action_box.clear_widgets()
-
-        for modifier in colour_modifiers:
-            toggle = ToggleButton(text=modifier, pos_hint={'x': 1, 'y': -0.5}, group='modifier')
-            self.ids.colour_modifier_box.add_widget(toggle)
-            toggle.bind(on_release=self.colour_selected)
 
         for colour in [*colours]:
             listitem = ColourItemWithCheckbox(text=colour, font_style='Body2', custom_icon_colour=colours[colour])
             self.ids.colour_list.add_widget(listitem)
-            listitem.bind(on_release=self.colour_selected)
-
-    def colour_selected(self, instance):
-        pass
 
     def mark(self, check, instance):
         if check.active:
@@ -454,13 +427,15 @@ class StrataDetailsScreen(MDScreen):
             self.COLOUR_STRING = ''
         elif (len(self.COLOURS)) == 1:
             self.COLOUR_STRING = '; ' + self.COLOURS[0]
+        elif (len(self.COLOURS)) == 2 and self.PRIMARY_NAME == 'CLAY':
+            self.COLOUR_STRING = '; ' + self.COLOURS[0] + ' mottled ' + self.COLOURS[1]
+        elif (len(self.COLOURS)) > 2 and self.PRIMARY_NAME == 'CLAY':
+            self.COLOUR_STRING = '; ' + self.COLOURS[0] + ' mottled ' + '{} and {}'.format(
+                ', '.join(self.COLOURS[1:-1]), self.COLOURS[-1])
         else:
             self.COLOUR_STRING = '; ' + '{} and {}'.format(', '.join(self.COLOURS[:-1]), self.COLOURS[-1])
 
         self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
-
-    def colour_action_selected(self, *args):
-        pass
 
     def enable_children(self, widget):
         for child in widget.children:
@@ -475,16 +450,12 @@ class StrataDetailsScreen(MDScreen):
 class ColourItemWithCheckbox(OneLineAvatarIconListItem):
     """Custom list item"""
     custom_icon_colour = ColorProperty()
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def mark(self, check, instance):
-        if check.active:
-            print('appending ' + instance.text.lower())
-            self.colour_list.append(instance.text.lower())
-            for element in self.colour_list:
-                print(element)
+        pass
 
 
 class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
