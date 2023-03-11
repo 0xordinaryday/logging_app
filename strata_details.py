@@ -133,15 +133,6 @@ Builder.load_string('''
                     height: "40dp"
                     size_hint_y: None
                     # size_hint: 1,0.2
-
-                MDBoxLayout:
-                    id: prefix_box
-                    orientation: 'horizontal'
-                    height: self.minimum_height
-                    size_hint_y: None
-                    spacing: "10dp"
-                    height: "40dp"
-                    # size_hint: 1.0,0.18
                     
                 MDBoxLayout:
                     orientation: 'horizontal'
@@ -167,19 +158,100 @@ Builder.load_string('''
                     font_size: "14sp"
  
                 MDBoxLayout:
+                    # spacer
                     orientation: 'horizontal'
                     height: self.minimum_height
                     size_hint_y: None
                     height: "10dp"
                     
-                # MDBoxLayout:
-                #     id: colour_action_box
-                #     orientation: 'horizontal'
-                #     height: self.minimum_height
-                #     size_hint_y: None
-                #     spacing: "10dp"
-                #     height: "40dp"
-                #     # size_hint: 1.0,0.18
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    height: "15dp"
+                    size_hint_y: None
+                    
+                MDBoxLayout:
+                    # label
+                    height: self.minimum_height
+                    size_hint_y: None
+                    id: secondary_components
+                    
+                    MDLabel:
+                        font_size: '16sp'
+                        bold: True
+                        id: first_secondary_label
+                        text: 'First Secondary Component'
+                        padding: [10,0]
+
+                MDBoxLayout:
+                    # buttons here
+                    id: first_secondary
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: None
+                    spacing: "10dp"
+                    height: "40dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDBoxLayout:
+                    #spacer
+                    orientation: 'horizontal'
+                    height: "35dp"
+                    size_hint_y: None
+                    
+                MDBoxLayout:
+                    # label
+                    height: self.minimum_height
+                    size_hint_y: None
+                    id: secondary_components
+                    
+                    MDLabel:
+                        font_size: '16sp'
+                        bold: True
+                        id: second_secondary_label
+                        text: 'Second Secondary Component'
+                        padding: [10,0]
+
+                MDBoxLayout:
+                    id: second_secondary
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: None
+                    spacing: "10dp"
+                    height: "40dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDBoxLayout:
+                    #spacer
+                    orientation: 'horizontal'
+                    height: "35dp"
+                    size_hint_y: None
+                    
+                MDBoxLayout:
+                    # label
+                    height: self.minimum_height
+                    size_hint_y: None
+                    
+                    MDLabel:
+                        font_size: '16sp'
+                        bold: True
+                        id: third_secondary_label
+                        text: 'Third Secondary Component'
+                        padding: [10,0]
+
+                MDBoxLayout:
+                    id: third_secondary
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: None
+                    spacing: "10dp"
+                    height: "40dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDBoxLayout:
+                    #spacer
+                    orientation: 'horizontal'
+                    height: "35dp"
+                    size_hint_y: None
                     
                 MDBoxLayout:
                     id: terminal_spacer
@@ -217,12 +289,7 @@ class StrataDetailsScreen(MDScreen):
     COLOUR_STRING = ''
     SECONDARY_NAME = ''
     SECONDARY_CHARS = ''
-    ALLOWABLE_PREFIXES = {
-        "CLAY": ["Silty", "Sandy", "Gravelly", "No Prefix"],
-        "SILT": ["Clayey", "Sandy", "Gravelly", "No Prefix"],
-        "SAND": ["Clayey", "Silty", "Gravelly", "No Prefix"],
-        "GRAVEL": ["Clayey", "Silty", "Sandy", "No Prefix"]
-    }
+    ALLOWABLE_SOILS = ["CLAY", "SILT", "SAND", "GRAVEL"]
     ALLOWABLE_PLASTICITY = {
         "CLAY": ["High Plast.", "Medium Plast.", "Low Plast."],
         "SILT": ["High Plast.", "Low Plast.", "Non-plastic"]
@@ -244,6 +311,11 @@ class StrataDetailsScreen(MDScreen):
         "Green": "darkolivegreen",
         "Blue": "darkslateblue"
     }
+    ALLOWABLE_SECONDARY_PROPORTIONS = {
+        "COARSE": ["Nil", "≤15%", ">15, ≤30%", ">30%"],
+        "FINE": ["Nil", "≤5%", ">5, ≤12%", ">12%"]
+    }
+    secondaries_are_set = False
 
     # ALLOWABLE_COLOUR_ACTIONS = ["Done", "Reset", "and", "mottled"]
     # ALLOWABLE_COLOUR_MODIFIERS = ["Very Dark", "Dark", "Light"]
@@ -260,7 +332,6 @@ class StrataDetailsScreen(MDScreen):
 
     def insert_major(self, instance):
         self.ids.strata_box.clear_widgets()
-        self.ids.prefix_box.clear_widgets()
         if instance.text == 'Soil':
             primary_name = ['CLAY', 'SILT', 'SAND', 'GRAVEL']
             for entry in primary_name:
@@ -270,7 +341,6 @@ class StrataDetailsScreen(MDScreen):
 
     def strata_selected(self, instance):
         is_strata_selected = False
-        self.ids.prefix_box.clear_widgets()
         self.ids.plasticity_or_grainsize_box.clear_widgets()
         self.COLOUR_STRING = ''
         self.COLOURS = []
@@ -281,35 +351,15 @@ class StrataDetailsScreen(MDScreen):
                 self.PRIMARY_NAME = child.text
 
         if is_strata_selected:
-            self.enable_children(self.ids.prefix_box)
-            prefixes = self.ALLOWABLE_PREFIXES[self.PRIMARY_NAME]
-            for entry in prefixes:
-                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
-                self.ids.prefix_box.add_widget(toggle)
-                toggle.bind(on_release=self.prefix_selected)
             self.ids.working_name.text = self.PRIMARY_NAME
             if self.PRIMARY_NAME in ['CLAY', 'SILT']:
                 self.PRIMARY_CLASS = 'FINE'
             else:
                 self.PRIMARY_CLASS = 'COARSE'
-        else:
-            self.disable_children(self.ids.prefix_box)
+            self.setup_plasticity_or_grainsize()
 
-    def prefix_selected(self, instance):
-        has_prefix = True
+    def setup_plasticity_or_grainsize(self):
         self.ids.plasticity_or_grainsize_box.clear_widgets()
-        self.PREFIX = ''
-
-        if instance.text == 'No Prefix' and instance.state == 'down':
-            has_prefix = False
-            for child in self.ids.prefix_box.children:
-                if child.text != 'No Prefix':
-                    child.state = 'normal'
-
-        if has_prefix:
-            for child in self.ids.prefix_box.children:
-                if child.state == 'down' and child.text != 'No Prefix':
-                    self.PREFIX = self.PREFIX + child.text + ' '
 
         if self.PRIMARY_CLASS == 'FINE':
             plasticity = self.ALLOWABLE_PLASTICITY[self.PRIMARY_NAME]
@@ -327,9 +377,12 @@ class StrataDetailsScreen(MDScreen):
                 self.ids.plasticity_or_grainsize_box.add_widget(toggle)
                 toggle.bind(on_release=self.grainsize_selected)
 
-        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME
+        self.ids.working_name.text = self.PRIMARY_NAME
 
         self.populate_colours()
+        if not self.secondaries_are_set:
+            self.set_secondaries()
+            self.secondaries_are_set = True
 
     def plasticity_selected(self, instance):
         self.PRIMARY_PLASTICITY = ''
@@ -371,7 +424,7 @@ class StrataDetailsScreen(MDScreen):
         if non_selected:
             self.PRIMARY_PLASTICITY = '; non-plastic'
 
-        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY
+        self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_PLASTICITY
 
     def grainsize_selected(self, instance):
         self.PRIMARY_GRAINSIZE = ''
@@ -405,7 +458,7 @@ class StrataDetailsScreen(MDScreen):
         else:
             self.PRIMARY_GRAINSIZE = ' undetermined grainsize'
 
-        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_GRAINSIZE
+        self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_GRAINSIZE
 
     def populate_colours(self, *args):
         colours = self.ALLOWABLE_COLOURS
@@ -435,6 +488,47 @@ class StrataDetailsScreen(MDScreen):
         else:
             self.COLOUR_STRING = '; ' + '{} and {}'.format(', '.join(self.COLOURS[:-1]), self.COLOURS[-1])
 
+        self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
+
+    def set_secondaries(self):
+        if self.PRIMARY_NAME == 'CLAY':
+            self.ids.first_secondary_label.text = 'Silt'
+            self.ids.second_secondary_label.text = 'Sand'
+            self.ids.third_secondary_label.text = 'Gravel'
+
+            silty_or_not = ['Silty', 'Not Silty']
+            for entry in silty_or_not:
+                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='silty')
+                self.ids.first_secondary.add_widget(toggle)
+                toggle.bind(on_release=self.silty_or_not)
+
+            coarse = self.ALLOWABLE_SECONDARY_PROPORTIONS['COARSE']
+            for entry in coarse:
+                toggle_sand = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='sand_fraction')
+                toggle_gravel = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='gravel_fraction')
+                self.ids.second_secondary.add_widget(toggle_sand)
+                self.ids.third_secondary.add_widget(toggle_gravel)
+                toggle_sand.bind(on_release=self.set_second_secondary_fraction)
+                toggle_gravel.bind(on_release=self.set_third_secondary_fraction)
+
+    def set_second_secondary_fraction(self, instance):
+        pass
+
+    def set_third_secondary_fraction(self, instance):
+        pass
+
+    def silty_or_not(self, instance):
+        if instance.text == 'Silty' and instance.state == 'down':
+            if 'Silty' not in self.PREFIX:
+                self.PREFIX = 'Silty ' + self.PREFIX
+        elif self.PREFIX == 'Silty ':
+            self.PREFIX = ''
+        else:
+            self.PREFIX.replace('Silty ', '')
+
+        self.update_name()
+
+    def update_name(self):
         self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
 
     def enable_children(self, widget):
