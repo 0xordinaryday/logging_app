@@ -5,6 +5,7 @@ from kivymd.toast import toast
 from kivymd.uix.list import ILeftBodyTouch, OneLineAvatarIconListItem
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.selectioncontrol import MDCheckbox
+from functools import partial
 
 from db import Database
 
@@ -341,6 +342,7 @@ class StrataDetailsScreen(MDScreen):
 
     def strata_selected(self, instance):
         is_strata_selected = False
+        self.reset_secondaries()
         self.ids.plasticity_or_grainsize_box.clear_widgets()
         self.COLOUR_STRING = ''
         self.COLOURS = []
@@ -357,10 +359,9 @@ class StrataDetailsScreen(MDScreen):
             else:
                 self.PRIMARY_CLASS = 'COARSE'
             self.setup_plasticity_or_grainsize()
+            self.set_secondaries()
 
     def setup_plasticity_or_grainsize(self):
-        self.ids.plasticity_or_grainsize_box.clear_widgets()
-
         if self.PRIMARY_CLASS == 'FINE':
             plasticity = self.ALLOWABLE_PLASTICITY[self.PRIMARY_NAME]
             group = None  # what a kludge
@@ -375,14 +376,11 @@ class StrataDetailsScreen(MDScreen):
             for entry in grainsize:
                 toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
                 self.ids.plasticity_or_grainsize_box.add_widget(toggle)
-                toggle.bind(on_release=self.grainsize_selected)
+                toggle_callback = partial(self.grainsize_selected, level='Primary')
+                toggle.bind(on_release=toggle_callback)
 
         self.ids.working_name.text = self.PRIMARY_NAME
-
         self.populate_colours()
-        if not self.secondaries_are_set:
-            self.set_secondaries()
-            self.secondaries_are_set = True
 
     def plasticity_selected(self, instance):
         self.PRIMARY_PLASTICITY = ''
@@ -426,14 +424,20 @@ class StrataDetailsScreen(MDScreen):
 
         self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_PLASTICITY
 
-    def grainsize_selected(self, instance):
-        self.PRIMARY_GRAINSIZE = ''
-        self.PRIMARY_PLASTICITY = ''
+    def grainsize_selected(self, instance, level):
+        children_ids = ''
+
+        if level == 'Primary':
+            self.PRIMARY_GRAINSIZE = ''
+            self.PRIMARY_PLASTICITY = ''
+            children_ids = self.ids.plasticity_or_grainsize_box.children
+        else:
+            children_ids = ''
         coarse_selected = False
         med_selected = False
         fine_selected = False
 
-        for child in self.ids.plasticity_or_grainsize_box.children:
+        for child in children_ids:
             if child.text == 'Coarse' and child.state == 'down':
                 coarse_selected = True
             if child.text == 'Medium' and child.state == 'down':
@@ -442,23 +446,26 @@ class StrataDetailsScreen(MDScreen):
                 fine_selected = True
 
         if fine_selected and not med_selected and not coarse_selected:
-            self.PRIMARY_GRAINSIZE = '; fine grained'
+            output_text = '; fine grained'
         elif fine_selected and med_selected and not coarse_selected:
-            self.PRIMARY_GRAINSIZE = '; fine to medium grained'
+            output_text = '; fine to medium grained'
         elif fine_selected and med_selected and coarse_selected:
-            self.PRIMARY_GRAINSIZE = '; fine to coarse grained'
+            output_text = '; fine to coarse grained'
         elif fine_selected and not med_selected and coarse_selected:
-            self.PRIMARY_GRAINSIZE = '; fine and coarse grained (gap graded)'
+            output_text = '; fine and coarse grained (gap graded)'
         elif med_selected and not coarse_selected and not fine_selected:
-            self.PRIMARY_GRAINSIZE = '; medium grained'
+            output_text = '; medium grained'
         elif med_selected and coarse_selected and not fine_selected:
-            self.PRIMARY_GRAINSIZE = '; medium to coarse grained'
+            output_text = '; medium to coarse grained'
         elif coarse_selected and not med_selected and not fine_selected:
-            self.PRIMARY_GRAINSIZE = '; coarse grained'
+            output_text = '; coarse grained'
         else:
-            self.PRIMARY_GRAINSIZE = ' undetermined grainsize'
+            output_text = ' undetermined grainsize'
 
-        self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_GRAINSIZE
+        if level == 'Primary':
+            self.PRIMARY_GRAINSIZE = output_text
+
+        self.update_name()
 
     def populate_colours(self, *args):
         colours = self.ALLOWABLE_COLOURS
@@ -491,25 +498,35 @@ class StrataDetailsScreen(MDScreen):
         self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
 
     def set_secondaries(self):
-        if self.PRIMARY_NAME == 'CLAY':
-            self.ids.first_secondary_label.text = 'Silt'
+        if self.PRIMARY_CLASS == 'FINE':
             self.ids.second_secondary_label.text = 'Sand'
             self.ids.third_secondary_label.text = 'Gravel'
+            self.set_coarse_secondaries()
 
-            silty_or_not = ['Silty', 'Not Silty']
-            for entry in silty_or_not:
-                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='silty')
+            if self.PRIMARY_NAME == 'CLAY':
+                self.ids.first_secondary_label.text = 'Silt'
+                secondary_prefix = ['Silty', 'Not Silty']
+            else:
+                self.ids.first_secondary_label.text = 'Clay'
+                secondary_prefix = ['Clayey', 'Not Clayey']
+            print(secondary_prefix)
+            for entry in secondary_prefix:
+                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='secondary_group')
                 self.ids.first_secondary.add_widget(toggle)
-                toggle.bind(on_release=self.silty_or_not)
+                toggle_callback = partial(self.process_prefix_from_secondary, prefix_text=secondary_prefix[0])
+                toggle.bind(on_release=toggle_callback)
 
-            coarse = self.ALLOWABLE_SECONDARY_PROPORTIONS['COARSE']
-            for entry in coarse:
-                toggle_sand = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='sand_fraction')
-                toggle_gravel = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='gravel_fraction')
-                self.ids.second_secondary.add_widget(toggle_sand)
-                self.ids.third_secondary.add_widget(toggle_gravel)
-                toggle_sand.bind(on_release=self.set_second_secondary_fraction)
-                toggle_gravel.bind(on_release=self.set_third_secondary_fraction)
+        self.secondaries_are_set = True
+
+    def set_coarse_secondaries(self):
+        coarse = self.ALLOWABLE_SECONDARY_PROPORTIONS['COARSE']
+        for entry in coarse:
+            toggle_sand = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='sand_fraction')
+            toggle_gravel = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='gravel_fraction')
+            self.ids.second_secondary.add_widget(toggle_sand)
+            self.ids.third_secondary.add_widget(toggle_gravel)
+            toggle_sand.bind(on_release=self.set_second_secondary_fraction)
+            toggle_gravel.bind(on_release=self.set_third_secondary_fraction)
 
     def set_second_secondary_fraction(self, instance):
         pass
@@ -517,19 +534,27 @@ class StrataDetailsScreen(MDScreen):
     def set_third_secondary_fraction(self, instance):
         pass
 
-    def silty_or_not(self, instance):
-        if instance.text == 'Silty' and instance.state == 'down':
-            if 'Silty' not in self.PREFIX:
-                self.PREFIX = 'Silty ' + self.PREFIX
-        elif self.PREFIX == 'Silty ':
+    def process_prefix_from_secondary(self, instance, prefix_text):
+        if instance.text == prefix_text and instance.state == 'down':
+            if prefix_text not in self.PREFIX:
+                self.PREFIX = prefix_text + ' ' + self.PREFIX
+        elif self.PREFIX == prefix_text + ' ':
             self.PREFIX = ''
         else:
-            self.PREFIX.replace('Silty ', '')
+            self.PREFIX.replace((prefix_text + ' '), '')
 
         self.update_name()
 
     def update_name(self):
         self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
+
+    def reset_secondaries(self):
+        self.ids.first_secondary_label.text = 'First Accessory'
+        self.ids.second_secondary_label.text = 'Second Accessory'
+        self.ids.third_secondary_label.text = 'Third Accessory'
+        self.ids.first_secondary.clear_widgets()
+        self.ids.second_secondary.clear_widgets()
+        self.ids.third_secondary.clear_widgets()
 
     def enable_children(self, widget):
         for child in widget.children:
