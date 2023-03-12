@@ -1,3 +1,5 @@
+from functools import partial
+
 from kivy.lang import Builder
 from kivy.properties import ColorProperty
 from kivy.uix.togglebutton import ToggleButton
@@ -5,7 +7,6 @@ from kivymd.toast import toast
 from kivymd.uix.list import ILeftBodyTouch, OneLineAvatarIconListItem
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.selectioncontrol import MDCheckbox
-from functools import partial
 
 from db import Database
 
@@ -222,6 +223,20 @@ Builder.load_string('''
                     # size_hint: 1.0,0.18
                     
                 MDBoxLayout:
+                    orientation: 'horizontal'
+                    height: "15dp"
+                    size_hint_y: None
+
+                MDBoxLayout:
+                    id: secondary_grainsize_box
+                    orientation: 'horizontal'
+                    # height: self.minimum_height
+                    size_hint_y: None
+                    spacing: "10dp"
+                    height: "40dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDBoxLayout:
                     #spacer
                     orientation: 'horizontal'
                     height: "35dp"
@@ -279,17 +294,33 @@ Builder.load_string('''
 ''')
 
 
+def get_prefix_text(instance):
+    if instance.group == 'sand_fraction':
+        prefix_text = 'Sandy'
+    elif instance.group == 'gravel_fraction':
+        prefix_text = 'Gravelly'
+    elif 'Silt' in instance.text:
+        prefix_text = 'Silty'
+    elif 'Clay' in instance.text:
+        prefix_text = 'Clayey'
+    else:
+        prefix_text = instance.text
+    return prefix_text
+
+
 class StrataDetailsScreen(MDScreen):
     QUALIFIER = ''
     PRIMARY_NAME = ''
     PRIMARY_CLASS = ''
-    PREFIX = ''
+    PREFIX = []
     PRIMARY_PLASTICITY = ''
     PRIMARY_GRAINSIZE = ''
     COLOURS = []
     COLOUR_STRING = ''
     SECONDARY_NAME = ''
-    SECONDARY_CHARS = ''
+    SECONDARY_CHARACTERISTICS = ''
+    TERTIARY_NAME = ''
+    TERTIARY_CHARACTERISTICS = ''
     ALLOWABLE_SOILS = ["CLAY", "SILT", "SAND", "GRAVEL"]
     ALLOWABLE_PLASTICITY = {
         "CLAY": ["High Plast.", "Medium Plast.", "Low Plast."],
@@ -317,6 +348,7 @@ class StrataDetailsScreen(MDScreen):
         "FINE": ["Nil", "≤5%", ">5, ≤12%", ">12%"]
     }
     secondaries_are_set = False
+    accessory_grainsize_set = False
 
     # ALLOWABLE_COLOUR_ACTIONS = ["Done", "Reset", "and", "mottled"]
     # ALLOWABLE_COLOUR_MODIFIERS = ["Very Dark", "Dark", "Light"]
@@ -379,7 +411,7 @@ class StrataDetailsScreen(MDScreen):
                 toggle_callback = partial(self.grainsize_selected, level='Primary')
                 toggle.bind(on_release=toggle_callback)
 
-        self.ids.working_name.text = self.PRIMARY_NAME
+        self.update_name()
         self.populate_colours()
 
     def plasticity_selected(self, instance):
@@ -422,7 +454,7 @@ class StrataDetailsScreen(MDScreen):
         if non_selected:
             self.PRIMARY_PLASTICITY = '; non-plastic'
 
-        self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_PLASTICITY
+        self.update_name()
 
     def grainsize_selected(self, instance, level):
         children_ids = ''
@@ -495,7 +527,7 @@ class StrataDetailsScreen(MDScreen):
         else:
             self.COLOUR_STRING = '; ' + '{} and {}'.format(', '.join(self.COLOURS[:-1]), self.COLOURS[-1])
 
-        self.ids.working_name.text = self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
+        self.update_name()
 
     def set_secondaries(self):
         if self.PRIMARY_CLASS == 'FINE':
@@ -509,11 +541,11 @@ class StrataDetailsScreen(MDScreen):
             else:
                 self.ids.first_secondary_label.text = 'Clay'
                 secondary_prefix = ['Clayey', 'Not Clayey']
-            print(secondary_prefix)
+            # print(secondary_prefix)
             for entry in secondary_prefix:
                 toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5}, group='secondary_group')
                 self.ids.first_secondary.add_widget(toggle)
-                toggle_callback = partial(self.process_prefix_from_secondary, prefix_text=secondary_prefix[0])
+                toggle_callback = partial(self.handle_fine_prefix)
                 toggle.bind(on_release=toggle_callback)
 
         self.secondaries_are_set = True
@@ -526,27 +558,56 @@ class StrataDetailsScreen(MDScreen):
             self.ids.second_secondary.add_widget(toggle_sand)
             self.ids.third_secondary.add_widget(toggle_gravel)
             toggle_sand.bind(on_release=self.set_second_secondary_fraction)
-            toggle_gravel.bind(on_release=self.set_third_secondary_fraction)
+            toggle_gravel.bind(on_release=self.set_second_secondary_fraction)
 
     def set_second_secondary_fraction(self, instance):
-        pass
+        # "Nil", "≤15%", ">15, ≤30%", ">30%"
+        if instance.text != 'Nil' and not self.accessory_grainsize_set:
+            grainsize = self.ALLOWABLE_GRAINSIZE
+            self.accessory_grainsize_set = True
+            for entry in grainsize:
+                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
+                self.ids.secondary_grainsize_box.add_widget(toggle)
+                toggle_callback = partial(self.grainsize_selected, level='Secondary')
+                toggle.bind(on_release=toggle_callback)
+
+        if instance.text != '>30%' and instance.state == 'down':
+            self.remove_prefix(instance)
+        if instance.text == '>30%' and instance.state == 'normal':
+            self.remove_prefix(instance)
+        if instance.text == '≤15%':
+            pass
+            # print(instance.group)
+        elif instance.text == '>15, ≤30%':
+            pass
+        elif instance.text == '>30%' and instance.state == 'down':
+            self.add_prefix(instance)
 
     def set_third_secondary_fraction(self, instance):
         pass
 
-    def process_prefix_from_secondary(self, instance, prefix_text):
-        if instance.text == prefix_text and instance.state == 'down':
-            if prefix_text not in self.PREFIX:
-                self.PREFIX = prefix_text + ' ' + self.PREFIX
-        elif self.PREFIX == prefix_text + ' ':
-            self.PREFIX = ''
-        else:
-            self.PREFIX.replace((prefix_text + ' '), '')
+    def remove_prefix(self, instance):
+        prefix_text_to_remove = get_prefix_text(instance)
+        if len(self.PREFIX) == 1 and prefix_text_to_remove in self.PREFIX:
+            self.PREFIX = []
+        elif prefix_text_to_remove in self.PREFIX:
+            self.PREFIX.remove(prefix_text_to_remove)
+
+        self.update_name()
+
+    def add_prefix(self, instance):
+        prefix_text_to_add = get_prefix_text(instance)
+        if prefix_text_to_add not in self.PREFIX:
+            self.PREFIX.append(prefix_text_to_add)
 
         self.update_name()
 
     def update_name(self):
-        self.ids.working_name.text = self.PREFIX + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + self.PRIMARY_GRAINSIZE + self.COLOUR_STRING
+        prefix_text = ' '.join(self.PREFIX) + ' '
+        self.ids.working_name.text = prefix_text + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + \
+                                     self.PRIMARY_GRAINSIZE + self.COLOUR_STRING + self.SECONDARY_NAME + \
+                                     self.SECONDARY_CHARACTERISTICS + self.TERTIARY_NAME + \
+                                     self.TERTIARY_CHARACTERISTICS
 
     def reset_secondaries(self):
         self.ids.first_secondary_label.text = 'First Accessory'
@@ -565,6 +626,13 @@ class StrataDetailsScreen(MDScreen):
             child.state = 'normal'  # i.e., unselected
             child.disabled = True
 
+    def handle_fine_prefix(self, instance):
+        if 'Not' not in instance.text and instance.state == 'down':
+            self.add_prefix(instance)
+        elif 'Not' in instance.text and instance.state == 'down':
+            self.remove_prefix(instance)
+        elif 'Not' not in instance.text and instance.state == 'normal':
+            self.remove_prefix(instance)
 
 class ColourItemWithCheckbox(OneLineAvatarIconListItem):
     """Custom list item"""
