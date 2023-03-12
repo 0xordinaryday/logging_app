@@ -463,8 +463,8 @@ class StrataDetailsScreen(MDScreen):
             self.PRIMARY_GRAINSIZE = ''
             self.PRIMARY_PLASTICITY = ''
             children_ids = self.ids.plasticity_or_grainsize_box.children
-        else:
-            children_ids = ''
+        elif level == 'Secondary':
+            children_ids = self.ids.secondary_grainsize_box.children
         coarse_selected = False
         med_selected = False
         fine_selected = False
@@ -496,6 +496,8 @@ class StrataDetailsScreen(MDScreen):
 
         if level == 'Primary':
             self.PRIMARY_GRAINSIZE = output_text
+        elif level == 'Secondary':
+            self.SECONDARY_CHARACTERISTICS = output_text[1:]  # don't need the semicolon
 
         self.update_name()
 
@@ -576,10 +578,9 @@ class StrataDetailsScreen(MDScreen):
         if instance.text == '>30%' and instance.state == 'normal':
             self.remove_prefix(instance)
         if instance.text == '≤15%':
-            pass
-            # print(instance.group)
+            self.SECONDARY_NAME = '; trace sand, '
         elif instance.text == '>15, ≤30%':
-            pass
+            self.SECONDARY_NAME = '; with sand, '
         elif instance.text == '>30%' and instance.state == 'down':
             self.add_prefix(instance)
 
