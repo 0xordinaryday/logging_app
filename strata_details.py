@@ -264,10 +264,40 @@ Builder.load_string('''
                     # size_hint: 1.0,0.18
                     
                 MDBoxLayout:
+                    orientation: 'horizontal'
+                    height: "15dp"
+                    size_hint_y: None
+
+                MDBoxLayout:
+                    id: tertiary_grainsize_box
+                    orientation: 'horizontal'
+                    # height: self.minimum_height
+                    size_hint_y: None
+                    spacing: "10dp"
+                    height: "40dp"
+                    # size_hint: 1.0,0.18
+                    
+                MDBoxLayout:
                     #spacer
                     orientation: 'horizontal'
                     height: "35dp"
                     size_hint_y: None
+                    
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    height: "15dp"
+                    size_hint_y: None
+
+                MDList:
+                    id: characterisation_list
+                    font_size: "14sp"
+ 
+                MDBoxLayout:
+                    # spacer
+                    orientation: 'horizontal'
+                    height: self.minimum_height
+                    size_hint_y: None
+                    height: "10dp"
                     
                 MDBoxLayout:
                     id: terminal_spacer
@@ -321,12 +351,14 @@ class StrataDetailsScreen(MDScreen):
     SECONDARY_CHARACTERISTICS = ''
     TERTIARY_NAME = ''
     TERTIARY_CHARACTERISTICS = ''
+    GRAVEL_CHARS = []
     ALLOWABLE_SOILS = ["CLAY", "SILT", "SAND", "GRAVEL"]
     ALLOWABLE_PLASTICITY = {
         "CLAY": ["High Plast.", "Medium Plast.", "Low Plast."],
         "SILT": ["High Plast.", "Low Plast.", "Non-plastic"]
     }
     ALLOWABLE_GRAINSIZE = ["Fine", "Medium", "Coarse"]
+    ALLOWABLE_GRAVEL_CHARS = ["rounded", "sub-rounded", "sub-angular", "angular", "flaky", "platy", "elongated"]
     ALLOWABLE_COLOURS = {
         "Brown": "peru",
         "Dark Brown": "saddlebrown",
@@ -465,6 +497,8 @@ class StrataDetailsScreen(MDScreen):
             children_ids = self.ids.plasticity_or_grainsize_box.children
         elif level == 'Secondary':
             children_ids = self.ids.secondary_grainsize_box.children
+        elif level == 'Tertiary':
+            children_ids = self.ids.tertiary_grainsize_box.children
         coarse_selected = False
         med_selected = False
         fine_selected = False
@@ -498,6 +532,8 @@ class StrataDetailsScreen(MDScreen):
             self.PRIMARY_GRAINSIZE = output_text
         elif level == 'Secondary':
             self.SECONDARY_CHARACTERISTICS = output_text[1:]  # don't need the semicolon
+        elif level == 'Tertiary':
+            self.TERTIARY_CHARACTERISTICS = output_text[1:]  # don't need the semicolon
 
         self.update_name()
 
@@ -509,12 +545,37 @@ class StrataDetailsScreen(MDScreen):
             listitem = ColourItemWithCheckbox(text=colour, font_style='Body2', custom_icon_colour=colours[colour])
             self.ids.colour_list.add_widget(listitem)
 
+        # move this later probably
+        self.populate_gravel_chars()
+
+    def populate_gravel_chars(self, *args):
+        allowable_chars = self.ALLOWABLE_GRAVEL_CHARS
+        self.ids.characterisation_list.clear_widgets()
+
+        for characteristic in allowable_chars:
+            listitem = ColourItemWithCheckbox(text=characteristic, font_style='Body2')
+            self.ids.characterisation_list.add_widget(listitem)
+
+    def gravel_characteristic_selected(self, check, instance):
+        if check.active:
+            self.GRAVEL_CHARS.append(instance.text)
+        else:
+            self.GRAVEL_CHARS.append(instance.text)
+        self.update_name()
+
     def mark(self, check, instance):
         if check.active:
-            self.COLOURS.append(instance.text.lower())
+            if instance.text in self.ALLOWABLE_GRAVEL_CHARS:
+                self.GRAVEL_CHARS.append(instance.text)
+            else:
+                self.COLOURS.append(instance.text.lower())
         else:
-            self.COLOURS.remove(instance.text.lower())
+            if instance.text in self.ALLOWABLE_GRAVEL_CHARS:
+                self.GRAVEL_CHARS.remove(instance.text)
+            else:
+                self.COLOURS.remove(instance.text.lower())
         self.display_colours()
+        self.update_name()
 
     def display_colours(self):
         if not len(self.COLOURS):
@@ -530,6 +591,14 @@ class StrataDetailsScreen(MDScreen):
             self.COLOUR_STRING = '; ' + '{} and {}'.format(', '.join(self.COLOURS[:-1]), self.COLOURS[-1])
 
         self.update_name()
+
+    def get_gravel_chars(self):
+        if not len(self.GRAVEL_CHARS):
+            return ''
+        elif (len(self.GRAVEL_CHARS)) == 1:
+            return '; ' + self.GRAVEL_CHARS[0]
+        else:
+            return '; ' + '{} and {}'.format(', '.join(self.GRAVEL_CHARS[:-1]), self.GRAVEL_CHARS[-1])
 
     def set_secondaries(self):
         if self.PRIMARY_CLASS == 'FINE':
@@ -563,26 +632,42 @@ class StrataDetailsScreen(MDScreen):
             toggle_gravel.bind(on_release=self.set_second_secondary_fraction)
 
     def set_second_secondary_fraction(self, instance):
+        materials = {'sand': {'level': 'Secondary', 'parentbox': self.ids.secondary_grainsize_box},
+                  'gravel': {'level': 'Tertiary', 'parentbox': self.ids.tertiary_grainsize_box}}
         # "Nil", "≤15%", ">15, ≤30%", ">30%"
         if instance.text != 'Nil' and not self.accessory_grainsize_set:
             grainsize = self.ALLOWABLE_GRAINSIZE
             self.accessory_grainsize_set = True
-            for entry in grainsize:
-                toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
-                self.ids.secondary_grainsize_box.add_widget(toggle)
-                toggle_callback = partial(self.grainsize_selected, level='Secondary')
-                toggle.bind(on_release=toggle_callback)
+            for k,v in materials.items():
+                for entry in grainsize:
+                    toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
+                    v.get('parentbox').add_widget(toggle)
+                    toggle_callback = partial(self.grainsize_selected, level=v.get('level'))
+                    toggle.bind(on_release=toggle_callback)
+
+        if instance.parent == self.ids.second_secondary:
+            material = 'sand'
+        else:
+            material = 'gravel'
 
         if instance.text != '>30%' and instance.state == 'down':
             self.remove_prefix(instance)
         if instance.text == '>30%' and instance.state == 'normal':
             self.remove_prefix(instance)
         if instance.text == '≤15%':
-            self.SECONDARY_NAME = '; trace sand, '
+            if material == 'sand':
+                self.SECONDARY_NAME = '; trace {}, '.format(material)
+            else:
+                self.TERTIARY_NAME = '; trace {}, '.format(material)
         elif instance.text == '>15, ≤30%':
-            self.SECONDARY_NAME = '; with sand, '
+            if material == 'sand':
+                self.SECONDARY_NAME = '; with {}, '.format(material)
+            else:
+                self.TERTIARY_NAME = '; with {}, '.format(material)
         elif instance.text == '>30%' and instance.state == 'down':
             self.add_prefix(instance)
+
+        self.update_name()
 
     def set_third_secondary_fraction(self, instance):
         pass
@@ -605,10 +690,11 @@ class StrataDetailsScreen(MDScreen):
 
     def update_name(self):
         prefix_text = ' '.join(self.PREFIX) + ' '
+        gravel_chars = self.get_gravel_chars()
         self.ids.working_name.text = prefix_text + self.PRIMARY_NAME + self.PRIMARY_PLASTICITY + \
                                      self.PRIMARY_GRAINSIZE + self.COLOUR_STRING + self.SECONDARY_NAME + \
                                      self.SECONDARY_CHARACTERISTICS + self.TERTIARY_NAME + \
-                                     self.TERTIARY_CHARACTERISTICS
+                                     self.TERTIARY_CHARACTERISTICS + gravel_chars
 
     def reset_secondaries(self):
         self.ids.first_secondary_label.text = 'First Accessory'
