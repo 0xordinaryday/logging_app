@@ -110,12 +110,6 @@ class NewProjectScreen(MDScreen):
         complete."""
         try:
             pass
-            # print(App.get_running_app().data) # a variable to hold the project number
-            # specific_project = db.get_specific_project_information(App.get_running_app().data)
-            # self.ids.project_number_id.text = specific_project[0]
-            # self.ids.client_id.text = specific_project[1]
-            # self.ids.location_id.text = specific_project[3]
-            # self.ids.project_type_id.text = specific_project[2]
         except Exception as e:
             print(e)
             pass
@@ -123,8 +117,4 @@ class NewProjectScreen(MDScreen):
     def commit_changes(self):
         db.create_project(self.ids.project_number_id.text, self.ids.client_id.text, self.ids.project_type_id.text,
                           self.ids.location_id.text)
-        # print(self.ids.project_number_id.text)
-        # print(self.ids.project_type_id.text)
-        # print(self.ids.client_id.text)
-        # print(self.ids.location_id.text)
         App.get_running_app().root.current = "homescreen"

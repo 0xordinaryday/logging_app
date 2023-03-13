@@ -112,3 +112,7 @@ class Database:
             (h_id, north, east, ele, start, end, dip, azi, logger, date, drill,
              barrel, fluid, diameter))
         self.con.commit()
+
+    def delete_borehole(self, borehole_identifier):
+        self.cursor.execute("DELETE FROM collars WHERE hole_id=?", (borehole_identifier,))
+        self.con.commit()

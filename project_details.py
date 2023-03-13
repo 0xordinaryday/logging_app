@@ -114,8 +114,6 @@ Builder.load_string('''
                     text: ""
                     size_hint: 1,0.1
             
-        
-
 ''')
 
 
@@ -127,16 +125,11 @@ class ProjectDetailsScreen(MDScreen):
         project_identifier = App.get_running_app().project_identifier
         self.ids.topbar.title = project_identifier + ' Details'
         try:
-            # print(App.get_running_app().data) # a variable to hold the project number
             specific_project = db.get_specific_project_information(project_identifier)
             self.ids.project_number_id.text = specific_project[0]
             self.ids.client_id.text = specific_project[1]
             self.ids.location_id.text = specific_project[3]
             self.ids.project_type_id.text = specific_project[2]
-            # specific_project[0] job_id
-            # specific_project[1] client
-            # specific_project[2] project_type
-            # specific_project[3] location
         except Exception as e:
             print(e)
             pass

@@ -3,6 +3,7 @@ from kivy.lang import Builder
 from kivymd.toast import toast
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.behaviors import TouchBehavior
 
 from db import Database
 
@@ -81,20 +82,15 @@ class BoreholeListScreen(MDScreen):
             pass
 
     def view_borehole_details(self, onelinelistitem):
-        # print(onelinelistitem.text)
         App.get_running_app().borehole_identifier = onelinelistitem.text.split(' ')[0]
         App.get_running_app().root.current = "borehole_details"
 
 
     def add_borehole(self):
-        borehole_to_create = ''
 
         current_borehole_id = App.get_running_app().borehole_identifier
         current_job_id = App.get_running_app().project_identifier
         highest_bh_name = db.get_highest_borehole_name(current_job_id)
-        # print(highest_bh_name[0][0])
-        # print(current_borehole_id)
-        # print(current_job_id)
 
         if not highest_bh_name:
             borehole_to_create = current_job_id + '-BH1'
@@ -103,3 +99,4 @@ class BoreholeListScreen(MDScreen):
 
         App.get_running_app().borehole_identifier = borehole_to_create
         App.get_running_app().root.current = "borehole_details"
+

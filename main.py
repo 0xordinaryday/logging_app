@@ -4,11 +4,9 @@ from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
 
 from db import Database
-from firstscreen import MyScreen1
 from homescreen import HomeScreen
 from new_project import NewProjectScreen
 from project_details import ProjectDetailsScreen
-from secondscreen import MyScreen2
 from borehole_list import BoreholeListScreen
 from borehole_details import BoreholeDetailsScreen
 from strata_list import StrataScreen
@@ -29,8 +27,6 @@ class MainApp(MDApp):
         self.theme_cls.material_style = "M3"
         sm = ScreenManager()
         sm.add_widget(HomeScreen())
-        sm.add_widget(MyScreen1())
-        sm.add_widget(MyScreen2())
         sm.add_widget(ProjectDetailsScreen())
         sm.add_widget(NewProjectScreen())
         sm.add_widget(BoreholeListScreen())
