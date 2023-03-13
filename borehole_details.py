@@ -230,7 +230,7 @@ Builder.load_string('''
                         # size_hint: 1,0.1
             
             MDFloatingActionButton:
-                icon: "delete"
+                icon: "trash-can-outline"
                 md_bg_color: 'red'
                 icon_color: 'white' # app.theme_cls.primary_color
                 pos_hint: {"center_x": .85, "center_y": .15}
