@@ -109,7 +109,7 @@ Builder.load_string('''
                         # pos_hint: {"x": 1, "y": -0.5}
                    
                 MDBoxLayout:
-                    # id: strata_box
+                    id: main_toggles
                     orientation: 'horizontal'
                     spacing: "10dp"
                     height: "40dp"
@@ -358,7 +358,7 @@ class StrataDetailsScreen(MDScreen):
         "SILT": ["High Plast.", "Low Plast.", "Non-plastic"]
     }
     ALLOWABLE_GRAINSIZE = ["Fine", "Medium", "Coarse"]
-    ALLOWABLE_GRAVEL_CHARS = ["rounded", "sub-rounded", "sub-angular", "angular", "flaky", "platy", "elongated"]
+    ALLOWABLE_GRAVEL_CHARS = ["Rounded", "Sub-rounded", "Sub-angular", "Angular", "Flaky", "Platy", "Elongated"]
     ALLOWABLE_COLOURS = {
         "Brown": "peru",
         "Dark Brown": "saddlebrown",
@@ -384,6 +384,10 @@ class StrataDetailsScreen(MDScreen):
 
     # ALLOWABLE_COLOUR_ACTIONS = ["Done", "Reset", "and", "mottled"]
     # ALLOWABLE_COLOUR_MODIFIERS = ["Very Dark", "Dark", "Light"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.saved_attrs = None
 
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
@@ -556,6 +560,11 @@ class StrataDetailsScreen(MDScreen):
             listitem = ColourItemWithCheckbox(text=characteristic, font_style='Body2')
             self.ids.characterisation_list.add_widget(listitem)
 
+        # hide it for now
+        self.hide_widget(self.ids.characterisation_list)
+        # self.ids.characterisation_list.opacity = 0
+        # self.ids.characterisation_list.disabled = True
+
     def gravel_characteristic_selected(self, check, instance):
         if check.active:
             self.GRAVEL_CHARS.append(instance.text)
@@ -566,12 +575,12 @@ class StrataDetailsScreen(MDScreen):
     def mark(self, check, instance):
         if check.active:
             if instance.text in self.ALLOWABLE_GRAVEL_CHARS:
-                self.GRAVEL_CHARS.append(instance.text)
+                self.GRAVEL_CHARS.append(instance.text.lower())
             else:
                 self.COLOURS.append(instance.text.lower())
         else:
             if instance.text in self.ALLOWABLE_GRAVEL_CHARS:
-                self.GRAVEL_CHARS.remove(instance.text)
+                self.GRAVEL_CHARS.remove(instance.text.lower())
             else:
                 self.COLOURS.remove(instance.text.lower())
         self.display_colours()
@@ -633,12 +642,12 @@ class StrataDetailsScreen(MDScreen):
 
     def set_second_secondary_fraction(self, instance):
         materials = {'sand': {'level': 'Secondary', 'parentbox': self.ids.secondary_grainsize_box},
-                  'gravel': {'level': 'Tertiary', 'parentbox': self.ids.tertiary_grainsize_box}}
+                     'gravel': {'level': 'Tertiary', 'parentbox': self.ids.tertiary_grainsize_box}}
         # "Nil", "≤15%", ">15, ≤30%", ">30%"
         if instance.text != 'Nil' and not self.accessory_grainsize_set:
             grainsize = self.ALLOWABLE_GRAINSIZE
             self.accessory_grainsize_set = True
-            for k,v in materials.items():
+            for k, v in materials.items():
                 for entry in grainsize:
                     toggle = ToggleButton(text=entry, pos_hint={'x': 1, 'y': -0.5})
                     v.get('parentbox').add_widget(toggle)
@@ -668,6 +677,9 @@ class StrataDetailsScreen(MDScreen):
             self.add_prefix(instance)
 
         self.update_name()
+        if 'gravel' in self.ids.working_name.text.lower():
+            # unhide it
+            self.hide_widget(self.ids.characterisation_list, False)
 
     def set_third_secondary_fraction(self, instance):
         pass
@@ -720,6 +732,16 @@ class StrataDetailsScreen(MDScreen):
             self.remove_prefix(instance)
         elif 'Not' not in instance.text and instance.state == 'normal':
             self.remove_prefix(instance)
+
+    def hide_widget(self, widget_to_hide, dohide=True):
+        print(widget_to_hide)
+        if not dohide:
+           widget_to_hide.height, widget_to_hide.size_hint_y, widget_to_hide.opacity, widget_to_hide.disabled = widget_to_hide.saved_attrs
+           del widget_to_hide.saved_attrs
+        elif dohide:
+            widget_to_hide.saved_attrs = widget_to_hide.height, widget_to_hide.size_hint_y, widget_to_hide.opacity, widget_to_hide.disabled
+            # wid.opacity, wid.disabled = 0, True
+            widget_to_hide.height, widget_to_hide.size_hint_y, widget_to_hide.opacity, widget_to_hide.disabled = 0, None, 0, True
 
 class ColourItemWithCheckbox(OneLineAvatarIconListItem):
     """Custom list item"""
