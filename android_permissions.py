@@ -82,5 +82,5 @@ class AndroidPermissions:
         mActivity.finishAndRemoveTask()
 
     def this_app_permissions(self):
-        return permissions
+        return self.permissions
 

@@ -2,12 +2,14 @@ from kivy import platform
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
+from kivymd.toast import toast
 from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import OneLineListItem
 from kivy.clock import Clock
 from kivymd.uix.button import MDFloatingActionButton
 from db import Database
+from os.path import join
 from excel_functions import chonkyboi
 from androidstorage4kivy import SharedStorage, Chooser, ShareSheet
 from android_permissions import AndroidPermissions
@@ -124,7 +126,7 @@ Builder.load_string('''
                 # md_bg_color: 'red'
                 # icon_color: 'white' # app.theme_cls.primary_color
                 pos_hint: {"center_x": .85, "center_y": .35}
-                on_release: root.data_send()
+                on_release: root.data_send(self)
                         
             MDFloatingActionButton:
                 icon: "database-export-outline"
@@ -138,9 +140,12 @@ Builder.load_string('''
 
 class ProjectDetailsScreen(MDScreen):
     private_files = None
+    dont_gc = None
+    test_uri = None
 
     def on_start(self):
         self.dont_gc = AndroidPermissions(self.start_app)
+        self.test_uri = self.create_uri_for_sharesheet()
 
     def on_enter(self, *args):
         # print('This prints automatically when App launches')
@@ -160,20 +165,20 @@ class ProjectDetailsScreen(MDScreen):
 
     def data_export(self):
         chonkyboi()
+        someval = SharedStorage().copy_to_shared('logging_data.xlsx')
+        toast('something')
+        print('test')
 
     def data_send(self, b):
-        if platform == 'android':
-            # ShareSheet().share_file(self.test_uri)
-            self.chooser = Chooser(self.chooser_callback)
-            self.chooser.choose_content('application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet', multiple=False)
-            self.button_reset(b)
+        file_to_share = self.create_uri_for_sharesheet()
+        ShareSheet().share_file(file_to_share)
+        self.button_reset(b)
 
     ### Callback ####
 
-    def chooser_callback(self, shared_file):
-        self.private_files = []
-        ss = SharedStorage()
-        (ss.copy_from_shared(shared_file))
+    def chooser_callback(self,uri_list):
+        ShareSheet().share_file_list(uri_list, self.target)
+        del self.chooser
 
     ### Utilities ####
 
@@ -181,3 +186,10 @@ class ProjectDetailsScreen(MDScreen):
         # The target app may timeout the button on_touch_up() event,
         # so the button fails to reset. Explicitly reset the button.
         Clock.schedule_once(b._do_release, b.min_state_time)
+
+    def create_uri_for_sharesheet(self):
+        filename = join(SharedStorage().get_cache_dir(), 'logging_data.xlsx')
+        # create a file in Private storage
+        shared_reference = SharedStorage().copy_to_shared(filename)  # returns reference to file, supposedly
+        toast(shared_reference)
+        return shared_reference
